@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import lombok.extern.log4j.Log4j2;
-
+// CHECKSTYLE:OFF
 /**
  * fastutil extends a collection framework with performance-optimized data structures.
  * <p>

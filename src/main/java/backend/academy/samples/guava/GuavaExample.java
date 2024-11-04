@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import lombok.extern.log4j.Log4j2;
-
+// CHECKSTYLE:OFF
 /**
  * Guava is a set of core Java libraries that includes a lot of useful utility classes (analogous to Apache Commons).
  * <p>

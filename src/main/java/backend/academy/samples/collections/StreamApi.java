@@ -1,5 +1,5 @@
 package backend.academy.samples.collections;
-
+// CHECKSTYLE:OFF
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;

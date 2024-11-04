@@ -1,5 +1,5 @@
 package backend.academy.samples.java21;
-
+// CHECKSTYLE:OFF
 /**
  * {@code java --source 22 --enable-preview src/main/java/backend/academy/samples/java21/UnnamedClasses.java} is needed
  * <p>

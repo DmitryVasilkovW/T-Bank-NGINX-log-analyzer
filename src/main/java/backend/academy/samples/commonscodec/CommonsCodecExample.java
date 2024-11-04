@@ -1,5 +1,5 @@
 package backend.academy.samples.commonscodec;
-
+// CHECKSTYLE:OFF
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;

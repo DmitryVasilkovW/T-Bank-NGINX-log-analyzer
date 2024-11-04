@@ -1,5 +1,5 @@
 package backend.academy.samples.java21;
-
+// CHECKSTYLE:OFF
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;

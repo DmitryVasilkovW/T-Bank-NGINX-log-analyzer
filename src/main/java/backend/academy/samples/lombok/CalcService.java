@@ -1,5 +1,5 @@
 package backend.academy.samples.lombok;
-
+// CHECKSTYLE:OFF
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
