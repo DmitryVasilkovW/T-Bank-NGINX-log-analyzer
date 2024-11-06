@@ -1,31 +1,28 @@
 package backend.academy.log.analyzer;
 
-import java.io.IOException;
-import java.nio.file.*;
-import java.time.*;
-import java.util.*;
-import java.util.stream.Collectors;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class LogAnalyzer {
     private final LogParser logParser = new LogParser();
     private final List<LogRecord> logRecords = new ArrayList<>();
-    private LocalDateTime from;
-    private LocalDateTime to;
+    private OffsetDateTime from;
+    private OffsetDateTime to;
 
-    public void setFrom(LocalDateTime from) {
+    public void setFrom(OffsetDateTime from) {
         this.from = from;
     }
 
-    public void setTo(LocalDateTime to) {
+    public void setTo(OffsetDateTime to) {
         this.to = to;
     }
 

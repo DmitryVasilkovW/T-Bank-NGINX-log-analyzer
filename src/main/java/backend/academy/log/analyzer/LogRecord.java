@@ -1,9 +1,9 @@
 package backend.academy.log.analyzer;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 public class LogRecord {
-    private final LocalDateTime timeLocal;
+    private final OffsetDateTime timeLocal;
     private final String remoteAddr;
     private final String resource;
     private final int statusCode;
@@ -11,7 +11,7 @@ public class LogRecord {
     private final String httpReferer;
     private final String httpUserAgent;
 
-    public LogRecord(LocalDateTime timeLocal, String remoteAddr, String resource, int statusCode,
+    public LogRecord(OffsetDateTime timeLocal, String remoteAddr, String resource, int statusCode,
         long responseSize, String httpReferer, String httpUserAgent) {
         this.timeLocal = timeLocal;
         this.remoteAddr = remoteAddr;
@@ -22,7 +22,7 @@ public class LogRecord {
         this.httpUserAgent = httpUserAgent;
     }
 
-    public LocalDateTime getTimeLocal() {
+    public OffsetDateTime getTimeLocal() {
         return timeLocal;
     }
 
