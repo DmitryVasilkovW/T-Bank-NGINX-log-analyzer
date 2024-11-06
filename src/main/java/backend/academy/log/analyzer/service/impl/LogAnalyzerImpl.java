@@ -1,5 +1,9 @@
-package backend.academy.log.analyzer;
+package backend.academy.log.analyzer.service.impl;
 
+import backend.academy.log.analyzer.model.LogRecord;
+import backend.academy.log.analyzer.model.Report;
+import backend.academy.log.analyzer.service.LogAnalyzer;
+import backend.academy.log.analyzer.service.parser.impl.LogParserImpl;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -12,8 +16,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class LogAnalyzer {
-    private final LogParser logParser = new LogParser();
+public class LogAnalyzerImpl implements LogAnalyzer {
+    private final LogParserImpl logParser = new LogParserImpl();
     private final List<LogRecord> logRecords = new ArrayList<>();
     private OffsetDateTime from;
     private OffsetDateTime to;
@@ -26,6 +30,7 @@ public class LogAnalyzer {
         this.to = to;
     }
 
+    @Override
     public void readLogs(String path) throws Exception {
         if (path.startsWith("http")) {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(path).openStream()))) {
@@ -55,6 +60,7 @@ public class LogAnalyzer {
         }
     }
 
+    @Override
     public Report generateReport() {
         long totalRequests = logRecords.size();
 

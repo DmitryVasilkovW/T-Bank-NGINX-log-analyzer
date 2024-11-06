@@ -1,4 +1,4 @@
-package backend.academy.log.analyzer;
+package backend.academy.log.analyzer.model;
 
 import java.time.OffsetDateTime;
 
