@@ -15,11 +15,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.Getter;
 
 public class LogAnalyzerImpl implements LogAnalyzer {
     private final LogParserImpl logParser = new LogParserImpl();
+    @Getter
     private final List<LogRecord> logRecords = new ArrayList<>();
+    @Getter
     private OffsetDateTime from;
+    @Getter
     private OffsetDateTime to;
 
     public void setFrom(OffsetDateTime from) {

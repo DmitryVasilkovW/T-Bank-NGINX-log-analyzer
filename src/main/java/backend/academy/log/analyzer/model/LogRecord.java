@@ -45,4 +45,8 @@ public class LogRecord {
     public String getHttpUserAgent() {
         return httpUserAgent;
     }
+
+    public String getRemoteAddr() {
+        return remoteAddr;
+    }
 }
