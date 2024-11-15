@@ -15,7 +15,7 @@ public class Main {
         try {
             LogAnalyzerImpl logAnalyzer = new LogAnalyzerImpl(new LogParserImpl());
 
-            String path = "src/main/resources/logs/";
+            String path = "src/main/resources/logs/*.log";
             logAnalyzer.readLogs(path);
 
             Report report = logAnalyzer.generateReport();

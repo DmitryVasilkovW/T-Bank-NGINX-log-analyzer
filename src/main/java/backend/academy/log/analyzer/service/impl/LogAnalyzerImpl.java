@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,18 +48,45 @@ public class LogAnalyzerImpl implements LogAnalyzer {
                     .map(Optional::get)
                     .forEach(this::addIfInRange);
             }
+        } else if (containsGlobSymbols(path)) {
+            Path basePath = Path.of(path).getParent();
+            String globPattern = "glob:" + Path.of(path).getFileName();
+            PathMatcher matcher = basePath.getFileSystem().getPathMatcher(globPattern);
+
+            Files.walk(basePath)
+                .filter(Files::isRegularFile)
+                .filter(p -> matcher.matches(p.getFileName()))
+                .forEach(p -> processFile(p));
         } else {
-            Files.walk(Path.of(path)).filter(Files::isRegularFile).forEach(p -> {
-                try (BufferedReader reader = Files.newBufferedReader(p)) {
-                    reader.lines().map(logParser::parseLine)
-                        .filter(Optional::isPresent)
-                        .map(Optional::get)
-                        .forEach(this::addIfInRange);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
+            Path regularPath = Path.of(path);
+
+            if (Files.isRegularFile(regularPath)) {
+                processFile(regularPath);
+            } else if (Files.isDirectory(regularPath)) {
+                Files.walk(regularPath)
+                    .filter(Files::isRegularFile)
+                    .forEach(this::processFile);
+            } else {
+                throw new IllegalArgumentException(
+                    "Path is neither a valid file, directory, nor a glob pattern: " + path);
+            }
         }
+    }
+
+    private void processFile(Path file) {
+        try (BufferedReader reader = Files.newBufferedReader(file)) {
+            reader.lines().map(logParser::parseLine)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .forEach(this::addIfInRange);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean containsGlobSymbols(String path) {
+        return path.contains("*") || path.contains("?") || path.contains("{") || path.contains("}") ||
+            path.contains("[") || path.contains("]");
     }
 
     private void addIfInRange(LogRecord record) {
