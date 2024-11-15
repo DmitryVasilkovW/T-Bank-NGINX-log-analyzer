@@ -36,7 +36,7 @@ public class LogAnalyzerImplTest {
     }
 
     @Test
-    void testAddIfInRangeIndirectlyThroughReadLogs() throws Exception {
+    void testAddIfInRangeIndirectlyThroughReadLogsByURL() throws Exception {
         OffsetDateTime time = OffsetDateTime.parse("2015-05-17T08:05:32+00:00");
 
         LogRecord record = new LogRecord(time, "93.180.71.3", "/downloads/product_1", 304, 0L, "-",
@@ -45,6 +45,21 @@ public class LogAnalyzerImplTest {
         when(logParserMock.parseLine(anyString())).thenReturn(Optional.of(record));
 
         logAnalyzer.readLogs("https://example.com");
+
+        assertFalse(logAnalyzer.logRecords().isEmpty());
+        assertEquals(record, logAnalyzer.logRecords().getFirst());
+    }
+
+    @Test
+    void testAddIfInRangeIndirectlyThroughReadLogsByFile() throws Exception {
+        OffsetDateTime time = OffsetDateTime.parse("2015-05-17T08:05:32+00:00");
+
+        LogRecord record = new LogRecord(time, "93.180.71.3", "/downloads/product_1", 304, 0L, "-",
+            "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)");
+
+        when(logParserMock.parseLine(anyString())).thenReturn(Optional.of(record));
+
+        logAnalyzer.readLogs("src/test/resources/logs.log");
 
         assertFalse(logAnalyzer.logRecords().isEmpty());
         assertEquals(record, logAnalyzer.logRecords().getFirst());
