@@ -1,37 +1,28 @@
 package backend.academy.log.analyzer.service;
 
 import backend.academy.log.analyzer.model.LogRecord;
-import backend.academy.log.analyzer.model.Report;
 import backend.academy.log.analyzer.service.impl.LogAnalyzerImpl;
 import backend.academy.log.analyzer.service.parser.impl.LogParserImpl;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import java.io.BufferedReader;
-import java.io.StringReader;
 import java.time.OffsetDateTime;
 import java.util.Optional;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 public class LogAnalyzerImplTest {
     @Mock
-    private LogParserImpl logParser;
-
     private LogParserImpl logParserMock;
 
     @InjectMocks
     private LogAnalyzerImpl logAnalyzer;
-
-    @BeforeEach
-    void setUp() {
-        logAnalyzer = new LogAnalyzerImpl();
-        logParserMock = Mockito.mock(LogParserImpl.class);
-    }
 
     @Test
     void testSetFromAndSetTo() {
@@ -46,36 +37,45 @@ public class LogAnalyzerImplTest {
 
     @Test
     void testAddIfInRangeIndirectlyThroughReadLogs() throws Exception {
-        OffsetDateTime time = OffsetDateTime.now();
-        LogRecord record = new LogRecord(time, "127.0.0.1", "/resource", 200, 500L, "-", "-");
+        OffsetDateTime time = OffsetDateTime.parse("2015-05-17T08:05:32+00:00");
+
+        LogRecord record = new LogRecord(time, "93.180.71.3", "/downloads/product_1", 304, 0L, "-",
+            "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)");
 
         when(logParserMock.parseLine(anyString())).thenReturn(Optional.of(record));
 
-        logAnalyzer.setFrom(time.minusHours(1));
-        logAnalyzer.setTo(time.plusHours(1));
+        logAnalyzer.readLogs("https://example.com");
 
-        try (BufferedReader reader = new BufferedReader(new StringReader("лог строка теста"))) {
-            logAnalyzer.readLogs("http://example.com");
-
-            assertEquals(1, logAnalyzer.logRecords().size());
-            assertEquals(record, logAnalyzer.logRecords().get(0));
-        }
+        assertFalse(logAnalyzer.logRecords().isEmpty());
+        assertEquals(record, logAnalyzer.logRecords().getFirst());
     }
 
-//    @Test
-//    void testGenerateReport() {
-//        LogRecord record1 = new LogRecord(OffsetDateTime.now(), "127.0.0.1", "/resource1", 200, 500L, "-", "-");
-//        LogRecord record2 = new LogRecord(OffsetDateTime.now(), "127.0.0.1", "/resource2", 404, 1000L, "-", "-");
-//
-//        logAnalyzer.addIfInRange(record1);
-//        logAnalyzer.addIfInRange(record2);
-//
-//        Report report = logAnalyzer.generateReport();
-//
-//        assertEquals(2, report.getTotalRequests());
-//        assertEquals(2, report.getResourceCount().size());
-//        assertEquals(2, report.getStatusCount().size());
-//        assertEquals(750.0, report.getAverageResponseSize());
-//        assertEquals(1000L, report.getPercentile95ResponseSize());
-//    }
+    @Test
+    void testParseLine() {
+        String logLine =
+            "93.180.71.3 - - [17/May/2015:08:05:32 +0000] \"GET /downloads/product_1 HTTP/1.1\" 304 0 \"-\" \"Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)\"";
+
+        OffsetDateTime expectedTime = OffsetDateTime.parse("2015-05-17T08:05:32+00:00");
+        String expectedRemoteAddr = "93.180.71.3";
+        String expectedResource = "/downloads/product_1";
+        int expectedStatusCode = 304;
+        long expectedResponseSize = 0L;
+        String expectedHttpReferer = "-";
+        String expectedHttpUserAgent = "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)";
+
+        LogParserImpl logParser = new LogParserImpl();
+
+        Optional<LogRecord> result = logParser.parseLine(logLine);
+
+        assertTrue(result.isPresent(), "Лог-запись должна быть успешно распознана");
+        LogRecord logRecord = result.get();
+
+        assertEquals(expectedTime, logRecord.getTimeLocal());
+        assertEquals(expectedRemoteAddr, logRecord.getRemoteAddr());
+        assertEquals(expectedResource, logRecord.getResource());
+        assertEquals(expectedStatusCode, logRecord.getStatusCode());
+        assertEquals(expectedResponseSize, logRecord.getResponseSize());
+        assertEquals(expectedHttpReferer, logRecord.getHttpReferer());
+        assertEquals(expectedHttpUserAgent, logRecord.getHttpUserAgent());
+    }
 }

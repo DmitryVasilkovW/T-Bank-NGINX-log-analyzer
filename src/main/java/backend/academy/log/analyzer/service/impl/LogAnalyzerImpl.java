@@ -18,13 +18,17 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 
 public class LogAnalyzerImpl implements LogAnalyzer {
-    private final LogParserImpl logParser = new LogParserImpl();
+    private final LogParserImpl logParser;
     @Getter
     private final List<LogRecord> logRecords = new ArrayList<>();
     @Getter
     private OffsetDateTime from;
     @Getter
     private OffsetDateTime to;
+
+    public LogAnalyzerImpl(LogParserImpl logParser) {
+        this.logParser = logParser;
+    }
 
     public void setFrom(OffsetDateTime from) {
         this.from = from;

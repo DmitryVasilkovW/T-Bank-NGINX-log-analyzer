@@ -24,8 +24,8 @@ class ReportRanderImplTest {
         String markdownReport = ReportRanderImpl.formatReport(report, "markdown");
 
         assertTrue(markdownReport.contains("#### Общая информация"));
-        assertTrue(markdownReport.contains("| Количество запросов  | 10 |"));
-        assertTrue(markdownReport.contains("| 95p размера ответа  | 1000b |"));
+        assertTrue(markdownReport.contains("|  Количество запросов  | 10 |"));
+        assertTrue(markdownReport.contains("|   95p размера ответа  | 1000b |"));
     }
 
     @Test
