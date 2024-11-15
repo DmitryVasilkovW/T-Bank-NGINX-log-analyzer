@@ -1,11 +1,10 @@
 package backend.academy.log.analyzer.service.render.impl;
 
 import backend.academy.log.analyzer.model.Report;
-import backend.academy.log.analyzer.service.render.ReportRander;
 import backend.academy.log.analyzer.service.render.http.response.decoder.HttpStatusDescription;
 import java.util.Map;
 
-public class ReportRanderImpl implements ReportRander {
+public class ReportRanderImpl {
 
     public static String formatReport(Report report, String format) {
         switch (format.toLowerCase()) {
