@@ -1,9 +1,12 @@
 package backend.academy;
 
+import backend.academy.log.analyzer.model.RanderRequest;
 import backend.academy.log.analyzer.model.Report;
 import backend.academy.log.analyzer.service.impl.LogAnalyzerImpl;
 import backend.academy.log.analyzer.service.parser.impl.LogParserImpl;
-import backend.academy.log.analyzer.service.render.impl.ReportRanderImpl;
+import backend.academy.log.analyzer.service.render.ReportRander;
+import backend.academy.log.analyzer.service.render.chain.factory.impl.RanderHandlerChainFactoryImpl;
+import java.util.Optional;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -18,7 +21,9 @@ public class Main {
             Report report = logAnalyzer.generateReport();
 
             String format = "markdown";
-            String formattedReport = ReportRanderImpl.formatReport(report, format);
+            Optional<ReportRander> randerO =
+                new RanderHandlerChainFactoryImpl().create().handle(new RanderRequest(format));
+            String formattedReport = randerO.get().randerReportAsString(report);
 
             System.out.println(formattedReport);
 
