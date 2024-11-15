@@ -140,6 +140,13 @@ public class LogAnalyzerImpl implements LogAnalyzer {
         long percentile95ResponseSize = sortedResponseSizes.isEmpty() ? 0 :
             sortedResponseSizes.get((int) (0.95 * sortedResponseSizes.size()));
 
+        Map<String, Long> ipAddresses = logRecords.stream()
+            .collect(Collectors.groupingBy(LogRecord::remoteAddr, Collectors.counting()));
+
+        Map<String, Long> userAgents = logRecords.stream()
+            .collect(Collectors.groupingBy(LogRecord::httpUserAgent, Collectors.counting()));
+
+
         return new Report(
             totalRequests,
             resourceCount,
@@ -149,7 +156,9 @@ public class LogAnalyzerImpl implements LogAnalyzer {
             from,
             to,
             sources,
-            path
+            path,
+            ipAddresses,
+            userAgents
         );
     }
 

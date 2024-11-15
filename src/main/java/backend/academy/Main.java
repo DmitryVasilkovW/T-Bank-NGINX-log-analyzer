@@ -23,7 +23,7 @@ public class Main {
             String format = "markdown";
             Optional<ReportRander> randerO =
                 new RanderHandlerChainFactoryImpl().create().handle(new RanderRequest(format));
-            String formattedReport = randerO.get().randerReportAsString(report);
+            String formattedReport = randerO.get().renderReportAsString(report);
 
             System.out.println(formattedReport);
 

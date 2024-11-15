@@ -13,6 +13,8 @@ public record Report(
     OffsetDateTime dateFrom,
     OffsetDateTime dateTo,
     List<String> sources,
-    String path
+    String path,
+    Map<String, Long> ipAddresses,
+    Map<String, Long> userAgents
 ) {
 }

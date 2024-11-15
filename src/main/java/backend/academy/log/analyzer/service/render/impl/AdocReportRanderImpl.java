@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class AdocReportRanderImpl implements ReportRander {
     @Override
-    public String randerReportAsString(Report report) {
+    public String renderReportAsString(Report report) {
         StringBuilder sb = new StringBuilder();
 
         sb.append("== Общая информация\n\n");

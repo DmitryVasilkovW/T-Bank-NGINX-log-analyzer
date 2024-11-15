@@ -28,7 +28,7 @@ public class AdocReportRanderImplTest {
             null,
             null
         );
-        String adocReport = rander.randerReportAsString(report);
+        String adocReport = rander.renderReportAsString(report);
 
         assertTrue(adocReport.contains("== Общая информация"));
         assertTrue(adocReport.contains("| Количество запросов | 10"));

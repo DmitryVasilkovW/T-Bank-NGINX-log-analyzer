@@ -28,7 +28,7 @@ public class MarkdownReportRanderImplTest {
             null,
             null
         );
-        String markdownReport = rander.randerReportAsString(report);
+        String markdownReport = rander.renderReportAsString(report);
 
         assertTrue(markdownReport.contains("#### General information"));
         assertTrue(markdownReport.contains("|  Number of requests  | 10 |"));
