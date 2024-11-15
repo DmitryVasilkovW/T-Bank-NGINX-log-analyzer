@@ -91,7 +91,15 @@ public class LogAnalyzerImpl implements LogAnalyzer {
         long percentile95ResponseSize = sortedResponseSizes.isEmpty() ? 0 :
             sortedResponseSizes.get((int) (0.95 * sortedResponseSizes.size()));
 
-        return new Report(totalRequests, resourceCount, statusCount, averageResponseSize, percentile95ResponseSize);
+        return new Report(
+            totalRequests,
+            resourceCount,
+            statusCount,
+            averageResponseSize,
+            percentile95ResponseSize,
+            from,
+            to
+        );
     }
 
 }
