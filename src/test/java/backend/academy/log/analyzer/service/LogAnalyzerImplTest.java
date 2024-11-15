@@ -85,12 +85,12 @@ public class LogAnalyzerImplTest {
         assertTrue(result.isPresent(), "Лог-запись должна быть успешно распознана");
         LogRecord logRecord = result.get();
 
-        assertEquals(expectedTime, logRecord.getTimeLocal());
-        assertEquals(expectedRemoteAddr, logRecord.getRemoteAddr());
-        assertEquals(expectedResource, logRecord.getResource());
-        assertEquals(expectedStatusCode, logRecord.getStatusCode());
-        assertEquals(expectedResponseSize, logRecord.getResponseSize());
-        assertEquals(expectedHttpReferer, logRecord.getHttpReferer());
-        assertEquals(expectedHttpUserAgent, logRecord.getHttpUserAgent());
+        assertEquals(expectedTime, logRecord.timeLocal());
+        assertEquals(expectedRemoteAddr, logRecord.remoteAddr());
+        assertEquals(expectedResource, logRecord.resource());
+        assertEquals(expectedStatusCode, logRecord.statusCode());
+        assertEquals(expectedResponseSize, logRecord.responseSize());
+        assertEquals(expectedHttpReferer, logRecord.httpReferer());
+        assertEquals(expectedHttpUserAgent, logRecord.httpUserAgent());
     }
 }

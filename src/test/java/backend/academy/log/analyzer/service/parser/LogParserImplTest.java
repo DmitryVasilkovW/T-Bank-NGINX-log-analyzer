@@ -19,11 +19,11 @@ class LogParserImplTest {
         assertTrue(result.isPresent());
         LogRecord record = result.get();
 
-        assertEquals("127.0.0.1", record.getRemoteAddr());
-        assertEquals("/index.html", record.getResource());
-        assertEquals(200, record.getStatusCode());
-        assertEquals(1043, record.getResponseSize());
-        assertEquals("Mozilla/5.0", record.getHttpUserAgent());
+        assertEquals("127.0.0.1", record.remoteAddr());
+        assertEquals("/index.html", record.resource());
+        assertEquals(200, record.statusCode());
+        assertEquals(1043, record.responseSize());
+        assertEquals("Mozilla/5.0", record.httpUserAgent());
     }
 
     @Test

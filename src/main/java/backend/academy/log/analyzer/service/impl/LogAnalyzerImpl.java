@@ -62,8 +62,8 @@ public class LogAnalyzerImpl implements LogAnalyzer {
     }
 
     private void addIfInRange(LogRecord record) {
-        if ((from == null || !record.getTimeLocal().isBefore(from)) &&
-            (to == null || !record.getTimeLocal().isAfter(to))) {
+        if ((from == null || !record.timeLocal().isBefore(from)) &&
+            (to == null || !record.timeLocal().isAfter(to))) {
             logRecords.add(record);
         }
     }
@@ -73,18 +73,18 @@ public class LogAnalyzerImpl implements LogAnalyzer {
         long totalRequests = logRecords.size();
 
         Map<String, Long> resourceCount = logRecords.stream()
-            .collect(Collectors.groupingBy(LogRecord::getResource, Collectors.counting()));
+            .collect(Collectors.groupingBy(LogRecord::resource, Collectors.counting()));
 
         Map<Integer, Long> statusCount = logRecords.stream()
-            .collect(Collectors.groupingBy(LogRecord::getStatusCode, Collectors.counting()));
+            .collect(Collectors.groupingBy(LogRecord::statusCode, Collectors.counting()));
 
         double averageResponseSize = logRecords.stream()
-            .mapToLong(LogRecord::getResponseSize)
+            .mapToLong(LogRecord::responseSize)
             .average()
             .orElse(0);
 
         List<Long> sortedResponseSizes = logRecords.stream()
-            .map(LogRecord::getResponseSize)
+            .map(LogRecord::responseSize)
             .sorted()
             .collect(Collectors.toList());
 
