@@ -4,7 +4,6 @@ import backend.academy.log.analyzer.model.LogRecord;
 import backend.academy.log.analyzer.service.parser.impl.LogParserImpl;
 import org.junit.jupiter.api.Test;
 
-import java.time.OffsetDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;

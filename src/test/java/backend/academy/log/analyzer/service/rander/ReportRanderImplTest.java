@@ -20,12 +20,20 @@ class ReportRanderImplTest {
         statusCount.put(200, 8L);
         statusCount.put(404, 2L);
 
-        Report report = new Report(10, resourceCount, statusCount, 512.0, 1000L);
+        Report report = new Report(
+            10,
+            resourceCount,
+            statusCount,
+            512.0,
+            1000L,
+            null,
+            null
+        );
         String markdownReport = ReportRanderImpl.formatReport(report, "markdown");
 
-        assertTrue(markdownReport.contains("#### Общая информация"));
-        assertTrue(markdownReport.contains("|  Количество запросов  | 10 |"));
-        assertTrue(markdownReport.contains("|   95p размера ответа  | 1000b |"));
+        assertTrue(markdownReport.contains("#### General information"));
+        assertTrue(markdownReport.contains("|  Number of requests  | 10 |"));
+        assertTrue(markdownReport.contains("|   95p response size  | 1000b |"));
     }
 
     @Test
@@ -36,7 +44,15 @@ class ReportRanderImplTest {
         statusCount.put(200, 8L);
         statusCount.put(404, 2L);
 
-        Report report = new Report(10, resourceCount, statusCount, 512.0, 1000L);
+        Report report = new Report(
+            10,
+            resourceCount,
+            statusCount,
+            512.0,
+            1000L,
+            null,
+            null
+        );
         String adocReport = ReportRanderImpl.formatReport(report, "adoc");
 
         assertTrue(adocReport.contains("== Общая информация"));
@@ -52,7 +68,15 @@ class ReportRanderImplTest {
         statusCount.put(200, 8L);
         statusCount.put(404, 2L);
 
-        Report report = new Report(10, resourceCount, statusCount, 512.0, 1000L);
+        Report report = new Report(
+            10,
+            resourceCount,
+            statusCount,
+            512.0,
+            1000L,
+            null,
+            null
+        );
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             ReportRanderImpl.formatReport(report, "xml");
