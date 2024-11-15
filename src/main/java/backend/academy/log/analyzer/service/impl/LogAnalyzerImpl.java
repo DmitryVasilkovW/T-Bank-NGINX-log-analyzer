@@ -39,9 +39,15 @@ public class LogAnalyzerImpl implements LogAnalyzer {
         this.to = to;
     }
 
+    private final List<String> sources = new ArrayList<>();
+    private String path;
+
     @Override
     public void readLogs(String path) throws Exception {
+        this.path = path;
         if (path.startsWith("http")) {
+            String fileName = extractFileNameFromURL(path); // Извлекаем имя файла из URL
+            sources.add(fileName); // Добавляем имя файла в список источников
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(path).openStream()))) {
                 reader.lines().map(logParser::parseLine)
                     .filter(Optional::isPresent)
@@ -56,20 +62,35 @@ public class LogAnalyzerImpl implements LogAnalyzer {
             Files.walk(basePath)
                 .filter(Files::isRegularFile)
                 .filter(p -> matcher.matches(p.getFileName()))
-                .forEach(p -> processFile(p));
+                .forEach(p -> {
+                    sources.add(p.getFileName().toString()); // Добавляем только имя файла
+                    processFile(p);
+                });
         } else {
             Path regularPath = Path.of(path);
 
             if (Files.isRegularFile(regularPath)) {
+                sources.add(regularPath.getFileName().toString()); // Добавляем только имя файла
                 processFile(regularPath);
             } else if (Files.isDirectory(regularPath)) {
                 Files.walk(regularPath)
                     .filter(Files::isRegularFile)
-                    .forEach(this::processFile);
+                    .forEach(p -> {
+                        sources.add(p.getFileName().toString()); // Добавляем только имя файла
+                        processFile(p);
+                    });
             } else {
                 throw new IllegalArgumentException(
                     "Path is neither a valid file, directory, nor a glob pattern: " + path);
             }
+        }
+    }
+
+    private String extractFileNameFromURL(String url) {
+        try {
+            return Path.of(new URL(url).getPath()).getFileName().toString();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid URL: " + url, e);
         }
     }
 
@@ -126,7 +147,9 @@ public class LogAnalyzerImpl implements LogAnalyzer {
             averageResponseSize,
             percentile95ResponseSize,
             from,
-            to
+            to,
+            sources,
+            path
         );
     }
 

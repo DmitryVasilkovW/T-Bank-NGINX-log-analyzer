@@ -1,6 +1,7 @@
 package backend.academy.log.analyzer.model;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Map;
 
 public record Report(
@@ -10,6 +11,8 @@ public record Report(
     double averageResponseSize,
     long percentile95ResponseSize,
     OffsetDateTime dateFrom,
-    OffsetDateTime dateTo
+    OffsetDateTime dateTo,
+    List<String> sources,
+    String path
 ) {
 }
