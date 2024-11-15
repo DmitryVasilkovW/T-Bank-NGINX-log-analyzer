@@ -15,7 +15,7 @@ public class Main {
         try {
             LogAnalyzerImpl logAnalyzer = new LogAnalyzerImpl(new LogParserImpl());
 
-            String path = "src/main/resources/logs";
+            String path = "https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/nginx_logs/nginx_logs";
             logAnalyzer.readLogs(path);
 
             Report report = logAnalyzer.generateReport();

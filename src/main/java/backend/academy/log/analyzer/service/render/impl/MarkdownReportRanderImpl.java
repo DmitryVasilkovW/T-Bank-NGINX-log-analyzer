@@ -4,6 +4,7 @@ import backend.academy.log.analyzer.model.Pair;
 import backend.academy.log.analyzer.model.Report;
 import backend.academy.log.analyzer.service.render.ReportRander;
 import backend.academy.log.analyzer.service.render.http.response.decoder.HttpStatusDescription;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -40,10 +41,13 @@ public class MarkdownReportRanderImpl implements ReportRander {
     private static final String FORMAT_FOR_TWO_STRINGS = "|  %s  | %s |\n";
     private static final String FORMAT_FOR_STRING_AND_INTEGER = "| %s | %d |\n";
     private static final String FORMAT_FOR_TWOINTEGERS_AND_ONE_STRING = "| %d | %s | %d |\n";
+    private static final String FORMAT_FOR_FILTRATION = "in %s metric to show only %s ";
 
     private static final String FILTRATION_NO = "No filtration";
     private static final String START_TIME_NAME = "Start time";
     private static final String END_TIME_NAME = "End time";
+    private static final String START_TIME_NO = "No start time";
+    private static final String END_TIME_NO = "No end time";
     private static final String FILTRATION_NAME = "Filtration";
     private static final String NUMBER_OF_REQUESTS_NAME = "Number of requests";
     private static final String AVERAGE_RESPONSE_SIZE_NAME = "Average response size";
@@ -82,11 +86,34 @@ public class MarkdownReportRanderImpl implements ReportRander {
         sb.append(SETTINGS_TITLE);
         sb.append(SETTINGS_TABLE_HEADER);
         sb.append(BIG_TABLE_SEPARATOR);
-        sb.append(String.format(FORMAT_FOR_TWO_STRINGS, PATH_NAME, report.path()));
-        sb.append(String.format(FORMAT_FOR_TWO_STRINGS, SOURCES_NAME, getSources(report.sources())));
-        sb.append(String.format(FORMAT_FOR_TWO_STRINGS, START_TIME_NAME, report.dateFrom()));
-        sb.append(String.format(FORMAT_FOR_TWO_STRINGS, END_TIME_NAME, report.dateTo()));
-        sb.append(String.format(FORMAT_FOR_TWO_STRINGS, FILTRATION_NAME, FILTRATION_NO));
+
+        String path = report.settingsReport().path();
+        String sources = getSources(report.settingsReport().sources());
+        String dataFrom = getDataAsString(report.settingsReport().dateFrom(), START_TIME_NO);
+        String dataTo = getDataAsString(report.settingsReport().dateTo(), END_TIME_NO);
+        String filtration = getFiltrationAsString(report.settingsReport().filtration());
+
+        sb.append(String.format(FORMAT_FOR_TWO_STRINGS, PATH_NAME, path));
+        sb.append(String.format(FORMAT_FOR_TWO_STRINGS, SOURCES_NAME, sources));
+        sb.append(String.format(FORMAT_FOR_TWO_STRINGS, START_TIME_NAME, dataFrom));
+        sb.append(String.format(FORMAT_FOR_TWO_STRINGS, END_TIME_NAME, dataTo));
+        sb.append(String.format(FORMAT_FOR_TWO_STRINGS, FILTRATION_NAME, filtration));
+    }
+
+    private String getFiltrationAsString(Pair<String, String> filtration) {
+        if (filtration == null) {
+            return FILTRATION_NO;
+        }
+
+        return String.format(FORMAT_FOR_FILTRATION, filtration.first(), filtration.second());
+    }
+
+    private String getDataAsString(OffsetDateTime date, String message) {
+        if (date == null) {
+            return message;
+        }
+
+        return date.toString();
     }
 
     private String getSources(List<String> sources) {

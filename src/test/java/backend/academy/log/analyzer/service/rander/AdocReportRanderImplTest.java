@@ -26,6 +26,10 @@ public class AdocReportRanderImplTest {
             512.0,
             1000L,
             null,
+            null,
+            null,
+            null,
+            null,
             null
         );
         String adocReport = rander.renderReportAsString(report);

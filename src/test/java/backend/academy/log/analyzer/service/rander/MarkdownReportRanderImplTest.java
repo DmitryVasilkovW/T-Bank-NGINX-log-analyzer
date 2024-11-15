@@ -26,6 +26,10 @@ public class MarkdownReportRanderImplTest {
             512.0,
             1000L,
             null,
+            null,
+            null,
+            null,
+            null,
             null
         );
         String markdownReport = rander.renderReportAsString(report);

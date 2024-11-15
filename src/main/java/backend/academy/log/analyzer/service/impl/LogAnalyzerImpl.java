@@ -1,7 +1,9 @@
 package backend.academy.log.analyzer.service.impl;
 
 import backend.academy.log.analyzer.model.LogRecord;
+import backend.academy.log.analyzer.model.Pair;
 import backend.academy.log.analyzer.model.Report;
+import backend.academy.log.analyzer.model.SettingsReport;
 import backend.academy.log.analyzer.service.LogAnalyzer;
 import backend.academy.log.analyzer.service.parser.impl.LogParserImpl;
 import java.io.BufferedReader;
@@ -41,6 +43,7 @@ public class LogAnalyzerImpl implements LogAnalyzer {
 
     private final List<String> sources = new ArrayList<>();
     private String path;
+    private Pair<String, String> filtration;
 
     @Override
     public void readLogs(String path) throws Exception {
@@ -146,6 +149,14 @@ public class LogAnalyzerImpl implements LogAnalyzer {
         Map<String, Long> userAgents = logRecords.stream()
             .collect(Collectors.groupingBy(LogRecord::httpUserAgent, Collectors.counting()));
 
+        var settingsReport = new SettingsReport(
+            from,
+            to,
+            sources,
+            path,
+            filtration
+        );
+
 
         return new Report(
             totalRequests,
@@ -153,12 +164,9 @@ public class LogAnalyzerImpl implements LogAnalyzer {
             statusCount,
             averageResponseSize,
             percentile95ResponseSize,
-            from,
-            to,
-            sources,
-            path,
             ipAddresses,
-            userAgents
+            userAgents,
+            settingsReport
         );
     }
 
