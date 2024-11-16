@@ -7,8 +7,9 @@ import backend.academy.log.analyzer.service.parser.LogParser;
 import backend.academy.log.analyzer.service.reader.LogReader;
 import backend.academy.log.analyzer.service.reader.chain.FilterHandlerChain;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URL;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
@@ -16,6 +17,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -39,6 +41,10 @@ public class LogReaderImpl implements LogReader {
     private Pair<String, String> filtration;
 
     private static final String HTTP_PROTOCOL = "http";
+    private static final String ERROR_MESSAGE_FOR_INVALID_URL = "Invalid URL: ";
+    private static final String ERROR_MESSAGE_FOR_INVALID_PATH =
+        "Path is neither a valid file, directory, nor a glob pattern: ";
+    private static final String GLOB_PATTERN = "glob:";
 
     public LogReaderImpl(LogParser logParser, FilterHandlerChain filterHandlerChain) {
         this.logParser = logParser;
@@ -69,7 +75,7 @@ public class LogReaderImpl implements LogReader {
     private void readHttp(String path) throws Exception {
         String fileName = extractFileNameFromURL(path);
         sources.add(fileName);
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(path).openStream()))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new URI(path).toURL().openStream()))) {
             reader.lines()
                 .map(logParser::parseLine)
                 .filter(Optional::isPresent)
@@ -80,17 +86,24 @@ public class LogReaderImpl implements LogReader {
     }
 
     private void readLocalSourceWithGlob(String path) throws Exception {
-        Path basePath = Path.of(path).getParent();
-        String globPattern = "glob:" + Path.of(path).getFileName();
+        Path pathObj = Path.of(path);
+        Path basePath = pathObj.getParent();
+        String globPattern = GLOB_PATTERN + pathObj.getFileName();
         PathMatcher matcher = basePath.getFileSystem().getPathMatcher(globPattern);
 
-        Files.walk(basePath)
-            .filter(Files::isRegularFile)
-            .filter(p -> matcher.matches(p.getFileName()))
-            .forEach(p -> {
-                sources.add(p.getFileName().toString());
-                processFile(p);
-            });
+        try (Stream<Path> paths = Files.walk(basePath)) {
+            paths
+                .filter(Files::isRegularFile)
+                .filter(p -> matcher.matches(p.getFileName()))
+                .forEach(p -> {
+                    sources.add(p.getFileName().toString());
+                    try {
+                        processFile(p);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+        }
     }
 
     private void readLocalSource(String path) throws Exception {
@@ -100,27 +113,37 @@ public class LogReaderImpl implements LogReader {
             sources.add(regularPath.getFileName().toString());
             processFile(regularPath);
         } else if (Files.isDirectory(regularPath)) {
-            Files.walk(regularPath)
+            handleFiles(regularPath);
+        } else {
+            throw new IllegalArgumentException(
+                ERROR_MESSAGE_FOR_INVALID_PATH + path);
+        }
+    }
+
+    private void handleFiles(Path regularPath) throws IOException {
+        try (Stream<Path> paths = Files.walk(regularPath)) {
+            paths
                 .filter(Files::isRegularFile)
                 .forEach(p -> {
                     sources.add(p.getFileName().toString());
-                    processFile(p);
+                    try {
+                        processFile(p);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 });
-        } else {
-            throw new IllegalArgumentException(
-                "Path is neither a valid file, directory, nor a glob pattern: " + path);
         }
     }
 
     private String extractFileNameFromURL(String url) {
         try {
-            return Path.of(new URL(url).getPath()).getFileName().toString();
+            return Path.of(new URI(url).toURL().getPath()).getFileName().toString();
         } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid URL: " + url, e);
+            throw new IllegalArgumentException(ERROR_MESSAGE_FOR_INVALID_URL + url, e);
         }
     }
 
-    private void processFile(Path file) {
+    private void processFile(Path file) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(file)) {
             reader.lines()
                 .map(logParser::parseLine)
@@ -128,8 +151,6 @@ public class LogReaderImpl implements LogReader {
                 .map(Optional::get)
                 .filter(this::matchesFilter)
                 .forEach(this::addIfInRange);
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
