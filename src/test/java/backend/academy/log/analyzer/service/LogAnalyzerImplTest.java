@@ -18,7 +18,7 @@ class LogAnalyzerImplTest {
             new FilterHandlerChainFactoryImpl()).create();
 
     @Test
-    void generateReportWithValidDataShouldReturnCorrectReport() throws Exception {
+    void testGenerateReportWithValidDataShouldReturnCorrectReport() throws Exception {
         realAnalyzer.setTimeFrom(LocalDate.parse("2014-08-05").atStartOfDay().atOffset(ZoneOffset.UTC));
         realAnalyzer.setTimeTo(LocalDate.parse("2017-08-05").atStartOfDay().atOffset(ZoneOffset.UTC));
 
@@ -34,12 +34,12 @@ class LogAnalyzerImplTest {
     }
 
     @Test
-    void generateReportShouldThrowException_whenInvalidPath() {
+    void testGenerateReportShouldThrowException_whenInvalidPath() {
         assertThrows(IllegalArgumentException.class, () -> realAnalyzer.generateReport("invalid/path", "", ""));
     }
 
     @Test
-    void generateReportShouldHandleEmptyLogList() throws Exception {
+    void testGenerateReportShouldHandleEmptyLogList() throws Exception {
         Report report = realAnalyzer.generateReport("src/test/resources/empty.log", "resource", "GET");
 
         assertNotNull(report);
@@ -47,7 +47,7 @@ class LogAnalyzerImplTest {
     }
 
     @Test
-    void generateReportShouldHandleFilter() throws Exception {
+    void testGenerateReportShouldHandleFilter() throws Exception {
         Report report = realAnalyzer.generateReport("src/test/resources/logs.log", "resource", "/downloads/product_1");
 
         assertNotNull(report);
@@ -57,7 +57,7 @@ class LogAnalyzerImplTest {
     }
 
     @Test
-    void generateReportShouldHandleNoMatchingLogs() throws Exception {
+    void testGenerateReportShouldHandleNoMatchingLogs() throws Exception {
         Report report = realAnalyzer.generateReport("src/test/resources/logs.log", "resource", "/aaaaaaaaaaa");
 
         assertNotNull(report);
