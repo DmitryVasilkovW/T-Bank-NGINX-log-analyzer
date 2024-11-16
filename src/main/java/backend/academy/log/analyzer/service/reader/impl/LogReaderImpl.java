@@ -1,8 +1,11 @@
-package backend.academy.log.analyzer.service.reader;
+package backend.academy.log.analyzer.service.reader.impl;
 
+import backend.academy.log.analyzer.model.FilterRequest;
 import backend.academy.log.analyzer.model.LogRecord;
 import backend.academy.log.analyzer.model.Pair;
 import backend.academy.log.analyzer.service.parser.LogParser;
+import backend.academy.log.analyzer.service.reader.LogReader;
+import backend.academy.log.analyzer.service.reader.chain.FilterHandlerChain;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -16,8 +19,9 @@ import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
 
-public class LogReaderImpl {
+public class LogReaderImpl implements LogReader {
     private final LogParser logParser;
+    private final FilterHandlerChain filterHandlerChain;
     private final List<LogRecord> logRecords = new ArrayList<>();
 
     @Getter
@@ -36,10 +40,12 @@ public class LogReaderImpl {
 
     private static final String HTTP_PROTOCOL = "http";
 
-    public LogReaderImpl(LogParser logParser) {
+    public LogReaderImpl(LogParser logParser, FilterHandlerChain filterHandlerChain) {
         this.logParser = logParser;
+        this.filterHandlerChain = filterHandlerChain;
     }
 
+    @Override
     public List<LogRecord> readLogs(String path, String filtrationMetric, String valueToFilter) throws Exception {
         setFiltration(filtrationMetric, valueToFilter);
 
@@ -144,31 +150,13 @@ public class LogReaderImpl {
     }
 
     private boolean matchesFilter(LogRecord logRecord) {
-        if (filtration == null) {
-            return true;
+        Optional<Pair<String, String>> filtrationO;
+        if (filtration != null) {
+            filtrationO = Optional.of(filtration);
+        } else {
+            filtrationO = Optional.empty();
         }
 
-        String metric = filtration.first();
-        String value = filtration.second();
-
-        switch (metric.toLowerCase()) {
-            case "agent":
-                return logRecord.httpUserAgent() != null && logRecord.httpUserAgent().startsWith(value);
-            case "method":
-                return logRecord.method() != null && logRecord.method().equalsIgnoreCase(value);
-            case "resource":
-                return logRecord.resource() != null && logRecord.resource().contains(value);
-            case "status":
-                try {
-                    int statusCode = Integer.parseInt(value);
-                    return logRecord.statusCode() == statusCode;
-                } catch (NumberFormatException e) {
-                    return false;
-                }
-            case "ip":
-                return logRecord.remoteAddr() != null && logRecord.remoteAddr().equals(value);
-            default:
-                return true;
-        }
+        return filterHandlerChain.handle(new FilterRequest(logRecord, filtrationO));
     }
 }

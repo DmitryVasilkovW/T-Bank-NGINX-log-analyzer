@@ -5,7 +5,7 @@ import backend.academy.log.analyzer.model.Pair;
 import backend.academy.log.analyzer.model.Report;
 import backend.academy.log.analyzer.model.SettingsReport;
 import backend.academy.log.analyzer.service.LogAnalyzer;
-import backend.academy.log.analyzer.service.reader.LogReaderImpl;
+import backend.academy.log.analyzer.service.reader.impl.LogReaderImpl;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;

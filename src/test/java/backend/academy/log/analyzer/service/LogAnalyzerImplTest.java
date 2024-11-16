@@ -5,6 +5,7 @@ import backend.academy.log.analyzer.service.factory.impl.LogAnalyzerFactoryImpl;
 import backend.academy.log.analyzer.service.impl.LogAnalyzerImpl;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import backend.academy.log.analyzer.service.reader.chain.factory.impl.FilterHandlerChainFactoryImpl;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -13,8 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LogAnalyzerImplTest {
-
-    private final LogAnalyzerImpl realAnalyzer = (LogAnalyzerImpl) new LogAnalyzerFactoryImpl().create();
+    private final LogAnalyzerImpl realAnalyzer = (LogAnalyzerImpl)
+        new LogAnalyzerFactoryImpl(
+            new FilterHandlerChainFactoryImpl()).create();
 
     @Test
     void generateReportWithValidDataShouldReturnCorrectReport() throws Exception {
