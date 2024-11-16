@@ -48,7 +48,9 @@ public class LogAnalyzerImpl implements LogAnalyzer {
     @Override
     public void readLogs(String path, String filtrationMetric, String valueToFilter) throws Exception {
         this.path = path;
-        this.filtration = new Pair<>(filtrationMetric, valueToFilter);
+        if (!filtrationMetric.isEmpty() && !valueToFilter.isEmpty()) {
+            this.filtration = new Pair<>(filtrationMetric, valueToFilter);
+        }
 
         if (path.startsWith("http")) {
             String fileName = extractFileNameFromURL(path); // Извлекаем имя файла из URL

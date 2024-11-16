@@ -16,13 +16,13 @@ public class Main {
             LogAnalyzerImpl logAnalyzer = new LogAnalyzerImpl(new LogParserImpl());
 
             String path = "https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/nginx_logs/nginx_logs";
-            String metric = "method";
-            String val = "GET";
+            String metric = "";
+            String val = "";
             logAnalyzer.readLogs(path, metric, val);
 
             Report report = logAnalyzer.generateReport();
 
-            String format = "markdown";
+            String format = "adoc";
             Optional<ReportRander> randerO =
                 new RanderHandlerChainFactoryImpl().create().handle(new RanderRequest(format));
             String formattedReport = randerO.get().renderReportAsString(report);
