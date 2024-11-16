@@ -17,5 +17,5 @@ public final class CommonConstant {
     public static final String UNKNOWN_CODE = "Unknown code";
     public static final String SOURCES_NAME = "Sources";
     public static final String PATH_NAME = "Path";
-    public static final String FORMAT_FOR_FILTRATION = "In %s metric to show only %s";
+    public static final String FORMAT_FOR_FILTRATION = "In %s parameter to show only %s";
 }

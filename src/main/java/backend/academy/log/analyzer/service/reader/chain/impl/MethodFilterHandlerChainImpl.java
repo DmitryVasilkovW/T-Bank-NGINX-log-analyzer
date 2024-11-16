@@ -7,7 +7,7 @@ public class MethodFilterHandlerChainImpl extends FilterHandlerChainImpl {
 
     @Override
     public boolean handle(FilterRequest filterRequest) {
-        String filtrationParameter = filterRequest.filtration().get().first();
+        String filtrationParameter = filterRequest.filtration().orElseThrow(RuntimeException::new).first();
         String filtrationValue = filterRequest.filtration().get().second();
         String method = filterRequest.logRecord().method();
 

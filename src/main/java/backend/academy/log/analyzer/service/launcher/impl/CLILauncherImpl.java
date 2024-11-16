@@ -13,8 +13,10 @@ import backend.academy.log.analyzer.service.render.chain.factory.impl.RenderHand
 import backend.academy.log.analyzer.service.render.error.ErrorRender;
 import backend.academy.log.analyzer.service.render.error.chain.factory.ErrorRenderHandlerChainFactory;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class CLILauncherImpl implements CLILauncher {
     private final CLIParser parser;
@@ -54,8 +56,8 @@ public class CLILauncherImpl implements CLILauncher {
         String path = arguments.path();
         String metric = arguments.filterField();
         String val = arguments.filterValue();
-        setData(arguments.dataFrom());
-        setData(arguments.dataTo());
+        setData(arguments.dataFrom(), logAnalyzer::setTimeFrom);
+        setData(arguments.dataTo(), logAnalyzer::setTimeTo);
 
         Report report = logAnalyzer.generateReport(path, metric, val);
 
@@ -67,9 +69,9 @@ public class CLILauncherImpl implements CLILauncher {
         printer.println(formattedReport);
     }
 
-    private void setData(String data) {
+    private void setData(String data, Consumer<OffsetDateTime> setter) {
         if (!data.isEmpty()) {
-            logAnalyzer.setTimeTo(
+            setter.accept(
                 LocalDate.parse(data).atStartOfDay().atOffset(ZoneOffset.UTC)
             );
         }
