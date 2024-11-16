@@ -5,6 +5,7 @@ import backend.academy.log.analyzer.model.RanderRequest;
 import backend.academy.log.analyzer.model.Report;
 import backend.academy.log.analyzer.service.LogAnalyzer;
 import backend.academy.log.analyzer.service.cli.parser.CLIParser;
+import backend.academy.log.analyzer.service.cli.printer.Printer;
 import backend.academy.log.analyzer.service.launcher.CLILauncher;
 import backend.academy.log.analyzer.service.render.ReportRender;
 import backend.academy.log.analyzer.service.render.chain.factory.impl.RenderHandlerChainFactoryImpl;
@@ -13,10 +14,12 @@ import java.util.Optional;
 public class CLILauncherImpl implements CLILauncher {
     private final CLIParser parser;
     private final LogAnalyzer logAnalyzer;
+    private final Printer printer;
 
-    public CLILauncherImpl(CLIParser parser, LogAnalyzer logAnalyzer) {
+    public CLILauncherImpl(CLIParser parser, LogAnalyzer logAnalyzer, Printer printer) {
         this.parser = parser;
         this.logAnalyzer = logAnalyzer;
+        this.printer = printer;
     }
 
     @Override
@@ -34,7 +37,7 @@ public class CLILauncherImpl implements CLILauncher {
                 new RenderHandlerChainFactoryImpl().create().handle(new RanderRequest(format));
             String formattedReport = randerO.get().renderReportAsString(report);
 
-            System.out.println(formattedReport);
+            printer.println(formattedReport);
 
         } catch (Exception e) {
             e.printStackTrace();

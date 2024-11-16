@@ -2,6 +2,7 @@ package backend.academy.log.analyzer.service.launcher.factory.impl;
 
 import backend.academy.log.analyzer.service.LogAnalyzer;
 import backend.academy.log.analyzer.service.cli.parser.impl.CLIParserImpl;
+import backend.academy.log.analyzer.service.cli.printer.impl.PrintStreamPrinterImpl;
 import backend.academy.log.analyzer.service.factory.LogAnalyzerFactory;
 import backend.academy.log.analyzer.service.launcher.CLILauncher;
 import backend.academy.log.analyzer.service.launcher.factory.CLILauncherFactory;
@@ -18,7 +19,8 @@ public class CLILauncherFactoryImpl implements CLILauncherFactory {
     public CLILauncher create() {
         var cliParser = new CLIParserImpl();
         LogAnalyzer logAnalyzer = logAnalyzerFactory.create();
+        var printer = new PrintStreamPrinterImpl(System.out);
 
-        return new CLILauncherImpl(cliParser, logAnalyzer);
+        return new CLILauncherImpl(cliParser, logAnalyzer, printer);
     }
 }

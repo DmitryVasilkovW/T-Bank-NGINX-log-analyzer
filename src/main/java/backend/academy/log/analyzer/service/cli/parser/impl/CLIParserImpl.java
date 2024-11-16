@@ -10,11 +10,14 @@ public class CLIParserImpl implements CLIParser {
     @Override
     public CLIArguments parseArguments(String[] args) {
         Map<String, String> arguments = new HashMap<>();
-        for (int i = 0; i < args.length; i++) {
+        for (int i = 0; i < args.length;) {
             if (args[i].startsWith("--")) {
                 String key = args[i].substring(2);
-                String value = (i + 1 < args.length && !args[i + 1].startsWith("--")) ? args[++i] : null;
+                String value = (i + 1 < args.length && !args[i + 1].startsWith("--")) ? args[i + 1] : null;
                 arguments.put(key, value);
+                i += (value != null) ? 2 : 1;
+            } else {
+                i++;
             }
         }
         return formatArguments(arguments);

@@ -2,7 +2,7 @@ package backend.academy.log.analyzer.service.rander;
 
 import backend.academy.log.analyzer.model.Report;
 import backend.academy.log.analyzer.model.SettingsReport;
-import backend.academy.log.analyzer.service.render.impl.MarkdownReportRanderImpl;
+import backend.academy.log.analyzer.service.render.impl.MarkdownReportRenderImpl;
 import backend.academy.log.analyzer.model.Pair;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.List;
 
 class MarkdownReportRanderImplTest {
-    private final MarkdownReportRanderImpl renderer = new MarkdownReportRanderImpl();
+    private final MarkdownReportRenderImpl renderer = new MarkdownReportRenderImpl();
 
     @Test
     void testRenderReportAsStringShouldGenerateCorrectMarkdown() {

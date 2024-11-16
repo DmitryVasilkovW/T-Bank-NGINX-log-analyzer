@@ -3,7 +3,7 @@ package backend.academy.log.analyzer.service.rander;
 import backend.academy.log.analyzer.model.Pair;
 import backend.academy.log.analyzer.model.Report;
 import backend.academy.log.analyzer.model.SettingsReport;
-import backend.academy.log.analyzer.service.render.impl.AdocReportRanderImpl;
+import backend.academy.log.analyzer.service.render.impl.AdocReportRenderImpl;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AdocReportRanderImplTest {
-    private final AdocReportRanderImpl reportRander = new AdocReportRanderImpl();
+    private final AdocReportRenderImpl reportRander = new AdocReportRenderImpl();
 
     @Test
     void testRenderReportAsStringShouldGenerateCorrectAdoc() {

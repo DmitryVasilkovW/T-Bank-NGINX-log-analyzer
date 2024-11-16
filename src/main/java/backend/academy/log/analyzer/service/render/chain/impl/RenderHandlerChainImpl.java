@@ -2,14 +2,14 @@ package backend.academy.log.analyzer.service.render.chain.impl;
 
 import backend.academy.log.analyzer.model.RanderRequest;
 import backend.academy.log.analyzer.service.render.ReportRender;
-import backend.academy.log.analyzer.service.render.chain.RanderHandlerChain;
+import backend.academy.log.analyzer.service.render.chain.RenderHandlerChain;
 import java.util.Optional;
 
-public abstract class RenderHandlerChainImpl implements RanderHandlerChain {
-    protected RanderHandlerChain next;
+public abstract class RenderHandlerChainImpl implements RenderHandlerChain {
+    protected RenderHandlerChain next;
 
     @Override
-    public RanderHandlerChain addNext(RanderHandlerChain link) {
+    public RenderHandlerChain addNext(RenderHandlerChain link) {
         if (next == null) {
             next = link;
         } else {

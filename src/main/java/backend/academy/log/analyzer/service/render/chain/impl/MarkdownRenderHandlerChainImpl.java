@@ -2,7 +2,7 @@ package backend.academy.log.analyzer.service.render.chain.impl;
 
 import backend.academy.log.analyzer.model.RanderRequest;
 import backend.academy.log.analyzer.service.render.ReportRender;
-import backend.academy.log.analyzer.service.render.impl.MarkdownReportRanderImpl;
+import backend.academy.log.analyzer.service.render.impl.MarkdownReportRenderImpl;
 import java.util.Optional;
 
 public class MarkdownRenderHandlerChainImpl extends RenderHandlerChainImpl {
@@ -13,7 +13,7 @@ public class MarkdownRenderHandlerChainImpl extends RenderHandlerChainImpl {
     public Optional<ReportRender> handle(RanderRequest request) {
         if (request.format().equals(MARKDOWN_TYPE)
         || request.format().equals(SHORT_MARKDOWN_TYPE)) {
-            return Optional.of(new MarkdownReportRanderImpl());
+            return Optional.of(new MarkdownReportRenderImpl());
         }
         return next.handle(request);
     }

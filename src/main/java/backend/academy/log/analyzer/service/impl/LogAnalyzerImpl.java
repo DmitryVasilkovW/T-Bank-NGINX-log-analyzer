@@ -37,9 +37,7 @@ public class LogAnalyzerImpl implements LogAnalyzer {
 
     @Override
     public Report generateReport(String path, String filtrationMetric, String valueToFilter) throws Exception {
-        logRecords = logReader.readLogs(path, filtrationMetric, valueToFilter);
-        filtration = logReader.filtration();
-        sources = logReader.sources();
+        setReportParameters(path, filtrationMetric, valueToFilter);
 
         long totalRequests = logRecords.size();
         Map<String, Long> resourceCount = getMapOfAmount(LogRecord::resource);
@@ -61,6 +59,12 @@ public class LogAnalyzerImpl implements LogAnalyzer {
             userAgents,
             settingsReport
         );
+    }
+
+    private void setReportParameters(String path, String filtrationMetric, String valueToFilter) throws Exception {
+        logRecords = logReader.readLogs(path, filtrationMetric, valueToFilter);
+        filtration = logReader.filtration();
+        sources = logReader.sources();
     }
 
     private SettingsReport getSettingsReport(String path) {

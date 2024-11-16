@@ -8,7 +8,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
-public class MarkdownReportRanderImpl implements ReportRender {
+public class MarkdownReportRenderImpl implements ReportRender {
     StringBuilder sb;
     List<Pair<Integer, Long>> responseCodes;
     List<Pair<String, Long>> resources;
