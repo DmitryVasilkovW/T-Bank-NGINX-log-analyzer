@@ -14,7 +14,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -56,7 +55,7 @@ class CLILauncherImplTest {
         var errorRenderMock = mock(ErrorRender.class);
         when(errorRenderHandlerChainFactoryMock.create()).thenReturn(errorRenderHandlerChainMock);
         when(errorRenderHandlerChainMock.handle(any(ErrorRequest.class))).thenReturn(errorRenderMock);
-        when(errorRenderMock.render(anyString())).thenReturn("Error: invalid format");
+        when(errorRenderMock.render(any())).thenReturn("Error: invalid format");
 
         cliLauncher.launch(args);
 
