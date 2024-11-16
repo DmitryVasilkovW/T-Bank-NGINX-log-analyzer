@@ -1,41 +1,54 @@
 package backend.academy.log.analyzer.service.rander;
 
 import backend.academy.log.analyzer.model.Report;
-import backend.academy.log.analyzer.service.render.ReportRander;
+import backend.academy.log.analyzer.model.SettingsReport;
 import backend.academy.log.analyzer.service.render.impl.MarkdownReportRanderImpl;
+import backend.academy.log.analyzer.model.Pair;
 import org.junit.jupiter.api.Test;
-import java.util.HashMap;
-import java.util.Map;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class MarkdownReportRanderImplTest {
-    private final ReportRander rander = new MarkdownReportRanderImpl();
+import java.time.OffsetDateTime;
+import java.util.Map;
+import java.util.List;
+
+class MarkdownReportRanderImplTest {
+    private final MarkdownReportRanderImpl renderer = new MarkdownReportRanderImpl();
 
     @Test
-    void testFormatReportAsMarkdown() {
-        Map<String, Long> resourceCount = new HashMap<>();
-        resourceCount.put("/index.html", 10L);
-        Map<Integer, Long> statusCount = new HashMap<>();
-        statusCount.put(200, 8L);
-        statusCount.put(404, 2L);
+    void testRenderReportAsStringShouldGenerateCorrectMarkdown() {
+        Map<String, Long> resourceCount = Map.of("resource1", 10L, "resource2", 20L);
+        Map<Integer, Long> statusCount = Map.of(200, 30L, 404, 5L);
+        Map<String, Long> ipAddresses = Map.of("192.168.1.1", 15L, "192.168.1.2", 25L);
+        Map<String, Long> userAgents = Map.of("Mozilla", 35L, "Chrome", 10L);
+
+        SettingsReport settingsReport = new SettingsReport(
+            OffsetDateTime.now(),
+            OffsetDateTime.now().plusHours(1),
+            List.of("source1", "source2"),
+            "/path",
+            new Pair<>("filter", "value")
+        );
 
         Report report = new Report(
-            10,
+            50L,
             resourceCount,
             statusCount,
-            512.0,
-            1000L,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
+            200.5,
+            1500L,
+            ipAddresses,
+            userAgents,
+            settingsReport
         );
-        String markdownReport = rander.renderReportAsString(report);
 
-        assertTrue(markdownReport.contains("#### General information"));
-        assertTrue(markdownReport.contains("|  Number of requests  | 10 |"));
-        assertTrue(markdownReport.contains("|  95p response size  | 1000b |"));
+        String result = renderer.renderReportAsString(report);
+
+        assertNotNull(result, "The generated report should not be null or empty.");
+
+        assertTrue(result.contains("# All information\n"), "The report should contain 'All information' section.");
+        assertTrue(result.contains("### General information \n\n"), "The report should contain 'General information' section.");
+        assertTrue(result.contains("|        Parameter        |   Value   |\n"), "The settings table should have correct header.");
+
+        assertTrue(result.contains("resource1"), "The report should contain resource name.");
+        assertTrue(result.contains("200"), "The report should contain HTTP status code.");
     }
 }

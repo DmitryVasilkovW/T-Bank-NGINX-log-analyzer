@@ -1,9 +1,12 @@
 package backend.academy.log.analyzer.service;
 
 import backend.academy.log.analyzer.model.LogRecord;
+import backend.academy.log.analyzer.model.Report;
 import backend.academy.log.analyzer.service.impl.LogAnalyzerImpl;
 import backend.academy.log.analyzer.service.parser.impl.LogParserImpl;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,85 +15,79 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class LogAnalyzerImplTest {
+class LogAnalyzerImplTest {
+
     @Mock
-    private LogParserImpl logParserMock;
+    private LogParserImpl logParser;
 
     @InjectMocks
     private LogAnalyzerImpl logAnalyzer;
 
-    @Test
-    void testSetFromAndSetTo() {
-        OffsetDateTime from = OffsetDateTime.now().minusDays(1);
-        OffsetDateTime to = OffsetDateTime.now();
-        logAnalyzer.setFrom(from);
-        logAnalyzer.setTo(to);
+    private final LogAnalyzerImpl realAnalyzer = new LogAnalyzerImpl(new LogParserImpl());
 
-        assertEquals(from, logAnalyzer.from());
-        assertEquals(to, logAnalyzer.to());
+    @Test
+    void generateReportWithValidDataShouldReturnCorrectReport() throws Exception {
+        realAnalyzer.setFrom(LocalDate.parse("2014-08-05").atStartOfDay().atOffset(ZoneOffset.UTC));
+        realAnalyzer.setTo(LocalDate.parse("2017-08-05").atStartOfDay().atOffset(ZoneOffset.UTC));
+
+        Report report = realAnalyzer.generateReport("src/test/resources/logs.log", "", "");
+
+        assertNotNull(report);
+        assertEquals(32, report.totalRequests());
+        assertEquals(21, report.resourceCount().get("/downloads/product_1"));
+        assertEquals(5, report.statusCount().get(200));
+        assertEquals(314.2, report.averageResponseSize(), 0.1);
+        assertEquals(3301, report.percentile95ResponseSize());
+        assertTrue(report.ipAddresses().containsKey("188.138.60.101"));
     }
 
     @Test
-    void testAddIfInRangeIndirectlyThroughReadLogsByURL() throws Exception {
-        OffsetDateTime time = OffsetDateTime.parse("2015-05-17T08:05:32+00:00");
-
-        LogRecord record = new LogRecord(time, "93.180.71.3", "/downloads/product_1", 304, 0L, "-",
-            "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)");
-
-        when(logParserMock.parseLine(anyString())).thenReturn(Optional.of(record));
-
-        logAnalyzer.readLogs("https://example.com");
-
-        assertFalse(logAnalyzer.logRecords().isEmpty());
-        assertEquals(record, logAnalyzer.logRecords().getFirst());
+    void generateReportShouldThrowException_whenInvalidPath() {
+        assertThrows(IllegalArgumentException.class, () -> logAnalyzer.generateReport("invalid/path", "", ""));
     }
 
     @Test
-    void testAddIfInRangeIndirectlyThroughReadLogsByFile() throws Exception {
-        OffsetDateTime time = OffsetDateTime.parse("2015-05-17T08:05:32+00:00");
+    void generateReportShouldHandleEmptyLogList() throws Exception {
+        when(logParser.parseLine(anyString())).thenReturn(Optional.empty());
 
-        LogRecord record = new LogRecord(time, "93.180.71.3", "/downloads/product_1", 304, 0L, "-",
-            "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)");
+        Report report = logAnalyzer.generateReport("src/test/resources/logs.log", "resource", "GET");
 
-        when(logParserMock.parseLine(anyString())).thenReturn(Optional.of(record));
-
-        logAnalyzer.readLogs("src/test/resources/logs.log");
-
-        assertFalse(logAnalyzer.logRecords().isEmpty());
-        assertEquals(record, logAnalyzer.logRecords().getFirst());
+        assertNotNull(report);
+        assertEquals(0, report.totalRequests());
     }
 
     @Test
-    void testParseLine() {
-        String logLine =
-            "93.180.71.3 - - [17/May/2015:08:05:32 +0000] \"GET /downloads/product_1 HTTP/1.1\" 304 0 \"-\" \"Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)\"";
+    void generateReportShouldHandleFilter() throws Exception {
+        Report report = realAnalyzer.generateReport("src/test/resources/logs.log", "resource", "/downloads/product_1");
 
-        OffsetDateTime expectedTime = OffsetDateTime.parse("2015-05-17T08:05:32+00:00");
-        String expectedRemoteAddr = "93.180.71.3";
-        String expectedResource = "/downloads/product_1";
-        int expectedStatusCode = 304;
-        long expectedResponseSize = 0L;
-        String expectedHttpReferer = "-";
-        String expectedHttpUserAgent = "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)";
+        assertNotNull(report);
+        assertEquals(21, report.totalRequests());
+        assertTrue(report.resourceCount().containsKey("/downloads/product_1"));
+        assertFalse(report.resourceCount().containsKey("/downloads/product_2"));
+    }
 
-        LogParserImpl logParser = new LogParserImpl();
+    @Test
+    void generateReportShouldHandleNoMatchingLogs() throws Exception {
+        LogRecord log1 = mock(LogRecord.class);
+        when(log1.resource()).thenReturn("/contact");
 
-        Optional<LogRecord> result = logParser.parseLine(logLine);
+        logAnalyzer.setFrom(OffsetDateTime.now().minusDays(1));
+        logAnalyzer.setTo(OffsetDateTime.now());
 
-        assertTrue(result.isPresent(), "Лог-запись должна быть успешно распознана");
-        LogRecord logRecord = result.get();
+        when(logParser.parseLine(anyString())).thenReturn(Optional.of(log1));
 
-        assertEquals(expectedTime, logRecord.timeLocal());
-        assertEquals(expectedRemoteAddr, logRecord.remoteAddr());
-        assertEquals(expectedResource, logRecord.resource());
-        assertEquals(expectedStatusCode, logRecord.statusCode());
-        assertEquals(expectedResponseSize, logRecord.responseSize());
-        assertEquals(expectedHttpReferer, logRecord.httpReferer());
-        assertEquals(expectedHttpUserAgent, logRecord.httpUserAgent());
+        Report report = logAnalyzer.generateReport("src/test/resources/logs.log", "resource", "/about");
+
+        assertNotNull(report);
+        assertEquals(0, report.totalRequests());
     }
 }
+

@@ -46,7 +46,56 @@ public class LogAnalyzerImpl implements LogAnalyzer {
     private Pair<String, String> filtration;
 
     @Override
-    public void readLogs(String path, String filtrationMetric, String valueToFilter) throws Exception {
+    public Report generateReport(String path, String filtrationMetric, String valueToFilter) throws Exception {
+        readLogs(path, filtrationMetric, valueToFilter);
+        long totalRequests = logRecords.size();
+
+        Map<String, Long> resourceCount = logRecords.stream()
+            .collect(Collectors.groupingBy(LogRecord::resource, Collectors.counting()));
+
+        Map<Integer, Long> statusCount = logRecords.stream()
+            .collect(Collectors.groupingBy(LogRecord::statusCode, Collectors.counting()));
+
+        double averageResponseSize = logRecords.stream()
+            .mapToLong(LogRecord::responseSize)
+            .average()
+            .orElse(0);
+
+        List<Long> sortedResponseSizes = logRecords.stream()
+            .map(LogRecord::responseSize)
+            .sorted()
+            .collect(Collectors.toList());
+
+        long percentile95ResponseSize = sortedResponseSizes.isEmpty() ? 0 :
+            sortedResponseSizes.get((int) (0.95 * sortedResponseSizes.size()));
+
+        Map<String, Long> ipAddresses = logRecords.stream()
+            .collect(Collectors.groupingBy(LogRecord::remoteAddr, Collectors.counting()));
+
+        Map<String, Long> userAgents = logRecords.stream()
+            .collect(Collectors.groupingBy(LogRecord::httpUserAgent, Collectors.counting()));
+
+        var settingsReport = new SettingsReport(
+            from,
+            to,
+            sources,
+            path,
+            filtration
+        );
+
+        return new Report(
+            totalRequests,
+            resourceCount,
+            statusCount,
+            averageResponseSize,
+            percentile95ResponseSize,
+            ipAddresses,
+            userAgents,
+            settingsReport
+        );
+    }
+
+    private void readLogs(String path, String filtrationMetric, String valueToFilter) throws Exception {
         this.path = path;
         if (!filtrationMetric.isEmpty() && !valueToFilter.isEmpty()) {
             this.filtration = new Pair<>(filtrationMetric, valueToFilter);
@@ -155,55 +204,6 @@ public class LogAnalyzerImpl implements LogAnalyzer {
             default:
                 return true; // Неизвестная метрика — не фильтруем
         }
-    }
-
-    @Override
-    public Report generateReport() {
-        long totalRequests = logRecords.size();
-
-        Map<String, Long> resourceCount = logRecords.stream()
-            .collect(Collectors.groupingBy(LogRecord::resource, Collectors.counting()));
-
-        Map<Integer, Long> statusCount = logRecords.stream()
-            .collect(Collectors.groupingBy(LogRecord::statusCode, Collectors.counting()));
-
-        double averageResponseSize = logRecords.stream()
-            .mapToLong(LogRecord::responseSize)
-            .average()
-            .orElse(0);
-
-        List<Long> sortedResponseSizes = logRecords.stream()
-            .map(LogRecord::responseSize)
-            .sorted()
-            .collect(Collectors.toList());
-
-        long percentile95ResponseSize = sortedResponseSizes.isEmpty() ? 0 :
-            sortedResponseSizes.get((int) (0.95 * sortedResponseSizes.size()));
-
-        Map<String, Long> ipAddresses = logRecords.stream()
-            .collect(Collectors.groupingBy(LogRecord::remoteAddr, Collectors.counting()));
-
-        Map<String, Long> userAgents = logRecords.stream()
-            .collect(Collectors.groupingBy(LogRecord::httpUserAgent, Collectors.counting()));
-
-        var settingsReport = new SettingsReport(
-            from,
-            to,
-            sources,
-            path,
-            filtration
-        );
-
-        return new Report(
-            totalRequests,
-            resourceCount,
-            statusCount,
-            averageResponseSize,
-            percentile95ResponseSize,
-            ipAddresses,
-            userAgents,
-            settingsReport
-        );
     }
 
 }

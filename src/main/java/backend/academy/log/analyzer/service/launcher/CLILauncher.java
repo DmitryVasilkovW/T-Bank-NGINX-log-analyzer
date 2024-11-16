@@ -22,9 +22,7 @@ public class CLILauncher {
             String path = arguments.path();
             String metric = arguments.filterField();
             String val = arguments.filterValue();
-            logAnalyzer.readLogs(path, metric, val);
-
-            Report report = logAnalyzer.generateReport();
+            Report report = logAnalyzer.generateReport(path, metric, val);
 
             String format = arguments.format();
             Optional<ReportRander> randerO =
