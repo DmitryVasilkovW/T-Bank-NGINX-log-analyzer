@@ -4,9 +4,24 @@ import backend.academy.log.analyzer.model.Pair;
 import backend.academy.log.analyzer.model.Report;
 import backend.academy.log.analyzer.service.render.ReportRender;
 import backend.academy.log.analyzer.service.render.http.response.decoder.HttpStatusDescription;
-import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Map;
+import static backend.academy.log.analyzer.service.render.common.constant.CommonConstant.AVERAGE_RESPONSE_SIZE_NAME;
+import static backend.academy.log.analyzer.service.render.common.constant.CommonConstant.DIMENSIONALITY;
+import static backend.academy.log.analyzer.service.render.common.constant.CommonConstant.END_TIME_NAME;
+import static backend.academy.log.analyzer.service.render.common.constant.CommonConstant.END_TIME_NO;
+import static backend.academy.log.analyzer.service.render.common.constant.CommonConstant.FILTRATION_NAME;
+import static backend.academy.log.analyzer.service.render.common.constant.CommonConstant.NUMBER_OF_REQUESTS_NAME;
+import static backend.academy.log.analyzer.service.render.common.constant.CommonConstant.PATH_NAME;
+import static backend.academy.log.analyzer.service.render.common.constant.CommonConstant.P_RESPONSE_SIZE_NAME;
+import static backend.academy.log.analyzer.service.render.common.constant.CommonConstant.SOURCES_NAME;
+import static backend.academy.log.analyzer.service.render.common.constant.CommonConstant.START_TIME_NAME;
+import static backend.academy.log.analyzer.service.render.common.constant.CommonConstant.START_TIME_NO;
+import static backend.academy.log.analyzer.service.render.common.constant.CommonConstant.UNKNOWN_CODE;
+import static backend.academy.log.analyzer.service.render.common.tools.MapSorter.getSortedPairs;
+import static backend.academy.log.analyzer.service.render.common.tools.StringMapper.getDataAsString;
+import static backend.academy.log.analyzer.service.render.common.tools.StringMapper.getFiltrationAsString;
+import static backend.academy.log.analyzer.service.render.common.tools.StringMapper.getSourcesAsString;
+import static backend.academy.log.analyzer.service.render.common.tools.TopParametersRender.renderTopParameterTable;
 
 public class AdocReportRenderImpl implements ReportRender {
     StringBuilder sb;
@@ -36,21 +51,6 @@ public class AdocReportRenderImpl implements ReportRender {
     private static final String FORMAT_FOR_TWO_STRINGS = "| %s | %s\n";
     private static final String FORMAT_FOR_STRING_AND_INTEGER = "| %s | %d\n";
     private static final String FORMAT_FOR_TWOINTEGERS_AND_ONE_STRING = "| %d | %s | %d\n";
-    private static final String FORMAT_FOR_FILTRATION = "in %s metric to show only %s";
-
-    private static final String FILTRATION_NO = "No filtration";
-    private static final String START_TIME_NAME = "Start time";
-    private static final String END_TIME_NAME = "End time";
-    private static final String START_TIME_NO = "No start time";
-    private static final String END_TIME_NO = "No end time";
-    private static final String FILTRATION_NAME = "Filtration";
-    private static final String NUMBER_OF_REQUESTS_NAME = "Number of requests";
-    private static final String AVERAGE_RESPONSE_SIZE_NAME = "Average response size";
-    private static final String P_RESPONSE_SIZE_NAME = "95p response size";
-    private static final String DIMENSIONALITY = "b";
-    private static final String UNKNOWN_CODE = "Unknown code";
-    private static final String SOURCES_NAME = "Sources";
-    private static final String PATH_NAME = "Path";
 
     @Override
     public String renderReportAsString(Report report) {
@@ -83,7 +83,7 @@ public class AdocReportRenderImpl implements ReportRender {
         sb.append(SETTINGS_TABLE_HEADER);
 
         String path = report.settingsReport().path();
-        String sources = getSources(report.settingsReport().sources());
+        String sources = getSourcesAsString(report.settingsReport().sources());
         String dataFrom = getDataAsString(report.settingsReport().dateFrom(), START_TIME_NO);
         String dataTo = getDataAsString(report.settingsReport().dateTo(), END_TIME_NO);
         String filtration = getFiltrationAsString(report.settingsReport().filtration());
@@ -94,26 +94,6 @@ public class AdocReportRenderImpl implements ReportRender {
         sb.append(String.format(FORMAT_FOR_TWO_STRINGS, END_TIME_NAME, dataTo));
         sb.append(String.format(FORMAT_FOR_TWO_STRINGS, FILTRATION_NAME, filtration));
         sb.append(TABLE_SEPARATOR);
-    }
-
-    private String getFiltrationAsString(Pair<String, String> filtration) {
-        if (filtration == null) {
-            return FILTRATION_NO;
-        }
-
-        return String.format(FORMAT_FOR_FILTRATION, filtration.first(), filtration.second());
-    }
-
-    private String getDataAsString(OffsetDateTime date, String message) {
-        if (date == null) {
-            return message;
-        }
-
-        return date.toString();
-    }
-
-    private String getSources(List<String> sources) {
-        return String.join(", ", sources);
     }
 
     private void renderGeneralInfoTable(Report report) {
@@ -170,7 +150,7 @@ public class AdocReportRenderImpl implements ReportRender {
             resources = getSortedPairs(report.resourceCount());
         }
 
-        renderTopParameterTable(resources);
+        renderTopParameterTable(sb, resources, AMOUNT_FOR_TOP, FORMAT_FOR_STRING_AND_INTEGER);
         sb.append(TABLE_SEPARATOR);
     }
 
@@ -200,7 +180,7 @@ public class AdocReportRenderImpl implements ReportRender {
         sb.append(IP_ADDRESSES_TABLE_HEADER);
 
         List<Pair<String, Long>> addresses = getSortedPairs(report.ipAddresses());
-        renderTopParameterTable(addresses);
+        renderTopParameterTable(sb, addresses, AMOUNT_FOR_TOP, FORMAT_FOR_STRING_AND_INTEGER);
         sb.append(TABLE_SEPARATOR);
     }
 
@@ -210,22 +190,7 @@ public class AdocReportRenderImpl implements ReportRender {
         sb.append(USER_AGENTS_TABLE_HEADER);
 
         List<Pair<String, Long>> userAgents = getSortedPairs(report.userAgents());
-        renderTopParameterTable(userAgents);
+        renderTopParameterTable(sb, userAgents, AMOUNT_FOR_TOP, FORMAT_FOR_STRING_AND_INTEGER);
         sb.append(TABLE_SEPARATOR);
-    }
-
-    private void renderTopParameterTable(List<Pair<String, Long>> parameters) {
-        int n = Math.min(AMOUNT_FOR_TOP, parameters.size());
-        for (int i = 0; i < n; i++) {
-            Pair<String, Long> entry = parameters.get(i);
-            sb.append(String.format(FORMAT_FOR_STRING_AND_INTEGER, entry.first(), entry.second()));
-        }
-    }
-
-    private <F, S extends Number & Comparable<S>> List<Pair<F, S>> getSortedPairs(Map<F, S> map) {
-        return map.entrySet().stream()
-            .map(entry -> new Pair<>(entry.getKey(), entry.getValue()))
-            .sorted((p1, p2) -> p2.second().compareTo(p1.second()))
-            .toList();
     }
 }
