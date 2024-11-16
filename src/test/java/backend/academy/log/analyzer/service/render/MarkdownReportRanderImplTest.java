@@ -1,4 +1,4 @@
-package backend.academy.log.analyzer.service.rander;
+package backend.academy.log.analyzer.service.render;
 
 import backend.academy.log.analyzer.model.Report;
 import backend.academy.log.analyzer.model.SettingsReport;

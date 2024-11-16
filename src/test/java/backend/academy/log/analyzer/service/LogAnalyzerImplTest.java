@@ -34,7 +34,7 @@ class LogAnalyzerImplTest {
     }
 
     @Test
-    void testGenerateReportShouldThrowException_whenInvalidPath() {
+    void testGenerateReportShouldThrowExceptionWhenInvalidPath() {
         assertThrows(IllegalArgumentException.class, () -> realAnalyzer.generateReport("invalid/path", "", ""));
     }
 
@@ -58,7 +58,7 @@ class LogAnalyzerImplTest {
 
     @Test
     void testGenerateReportShouldHandleNoMatchingLogs() throws Exception {
-        Report report = realAnalyzer.generateReport("src/test/resources/logs.log", "resource", "/aaaaaaaaaaa");
+        Report report = realAnalyzer.generateReport("src/test/resources/logs.log", "resource", "/aaaaaaaaaaa!");
 
         assertNotNull(report);
         assertEquals(0, report.totalRequests());
