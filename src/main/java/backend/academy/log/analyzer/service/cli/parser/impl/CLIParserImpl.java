@@ -1,11 +1,13 @@
-package backend.academy.log.analyzer.service.cli.parser;
+package backend.academy.log.analyzer.service.cli.parser.impl;
 
 import backend.academy.log.analyzer.model.CLIArguments;
+import backend.academy.log.analyzer.service.cli.parser.CLIParser;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CLIParserImpl {
+public class CLIParserImpl implements CLIParser {
 
+    @Override
     public CLIArguments parseArguments(String[] args) {
         Map<String, String> arguments = new HashMap<>();
         for (int i = 0; i < args.length; i++) {

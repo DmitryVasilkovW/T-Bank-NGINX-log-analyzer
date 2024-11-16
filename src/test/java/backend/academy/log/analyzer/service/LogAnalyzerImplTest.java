@@ -1,37 +1,20 @@
 package backend.academy.log.analyzer.service;
 
-import backend.academy.log.analyzer.model.LogRecord;
 import backend.academy.log.analyzer.model.Report;
+import backend.academy.log.analyzer.service.factory.impl.LogAnalyzerFactoryImpl;
 import backend.academy.log.analyzer.service.impl.LogAnalyzerImpl;
-import backend.academy.log.analyzer.service.parser.impl.LogParserImpl;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
 class LogAnalyzerImplTest {
 
-    @Mock
-    private LogParserImpl logParser;
-
-    @InjectMocks
-    private LogAnalyzerImpl logAnalyzer;
-
-    private final LogAnalyzerImpl realAnalyzer = new LogAnalyzerImpl(new LogParserImpl());
+    private final LogAnalyzerImpl realAnalyzer = (LogAnalyzerImpl) new LogAnalyzerFactoryImpl().create();
 
     @Test
     void generateReportWithValidDataShouldReturnCorrectReport() throws Exception {
@@ -51,14 +34,12 @@ class LogAnalyzerImplTest {
 
     @Test
     void generateReportShouldThrowException_whenInvalidPath() {
-        assertThrows(IllegalArgumentException.class, () -> logAnalyzer.generateReport("invalid/path", "", ""));
+        assertThrows(IllegalArgumentException.class, () -> realAnalyzer.generateReport("invalid/path", "", ""));
     }
 
     @Test
     void generateReportShouldHandleEmptyLogList() throws Exception {
-        when(logParser.parseLine(anyString())).thenReturn(Optional.empty());
-
-        Report report = logAnalyzer.generateReport("src/test/resources/logs.log", "resource", "GET");
+        Report report = realAnalyzer.generateReport("src/test/resources/empty.log", "resource", "GET");
 
         assertNotNull(report);
         assertEquals(0, report.totalRequests());
@@ -76,15 +57,7 @@ class LogAnalyzerImplTest {
 
     @Test
     void generateReportShouldHandleNoMatchingLogs() throws Exception {
-        LogRecord log1 = mock(LogRecord.class);
-        when(log1.resource()).thenReturn("/contact");
-
-        logAnalyzer.from(OffsetDateTime.now().minusDays(1));
-        logAnalyzer.to(OffsetDateTime.now());
-
-        when(logParser.parseLine(anyString())).thenReturn(Optional.of(log1));
-
-        Report report = logAnalyzer.generateReport("src/test/resources/logs.log", "resource", "/about");
+        Report report = realAnalyzer.generateReport("src/test/resources/logs.log", "resource", "/aaaaaaaaaaa");
 
         assertNotNull(report);
         assertEquals(0, report.totalRequests());
