@@ -2,10 +2,9 @@ package backend.academy.log.analyzer.service;
 
 import backend.academy.log.analyzer.model.Report;
 import backend.academy.log.analyzer.service.factory.impl.LogAnalyzerFactoryImpl;
-import backend.academy.log.analyzer.service.impl.LogAnalyzerImpl;
+import backend.academy.log.analyzer.service.reader.chain.factory.impl.FilterHandlerChainFactoryImpl;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
-import backend.academy.log.analyzer.service.reader.chain.factory.impl.FilterHandlerChainFactoryImpl;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -14,14 +13,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LogAnalyzerImplTest {
-    private final LogAnalyzerImpl realAnalyzer = (LogAnalyzerImpl)
+    private final LogAnalyzer realAnalyzer =
         new LogAnalyzerFactoryImpl(
             new FilterHandlerChainFactoryImpl()).create();
 
     @Test
     void generateReportWithValidDataShouldReturnCorrectReport() throws Exception {
-        realAnalyzer.from(LocalDate.parse("2014-08-05").atStartOfDay().atOffset(ZoneOffset.UTC));
-        realAnalyzer.to(LocalDate.parse("2017-08-05").atStartOfDay().atOffset(ZoneOffset.UTC));
+        realAnalyzer.setTimeFrom(LocalDate.parse("2014-08-05").atStartOfDay().atOffset(ZoneOffset.UTC));
+        realAnalyzer.setTimeTo(LocalDate.parse("2017-08-05").atStartOfDay().atOffset(ZoneOffset.UTC));
 
         Report report = realAnalyzer.generateReport("src/test/resources/logs.log", "", "");
 

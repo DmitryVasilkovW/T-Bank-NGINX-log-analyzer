@@ -7,6 +7,7 @@ import backend.academy.log.analyzer.service.factory.LogAnalyzerFactory;
 import backend.academy.log.analyzer.service.launcher.CLILauncher;
 import backend.academy.log.analyzer.service.launcher.factory.CLILauncherFactory;
 import backend.academy.log.analyzer.service.launcher.impl.CLILauncherImpl;
+import backend.academy.log.analyzer.service.render.error.chain.factory.impl.ErrorRenderHandlerChainFactoryImpl;
 
 public class CLILauncherFactoryImpl implements CLILauncherFactory {
     private final LogAnalyzerFactory logAnalyzerFactory;
@@ -20,7 +21,8 @@ public class CLILauncherFactoryImpl implements CLILauncherFactory {
         var cliParser = new CLIParserImpl();
         LogAnalyzer logAnalyzer = logAnalyzerFactory.create();
         var printer = new PrintStreamPrinterImpl(System.out);
+        var errorFactory = new ErrorRenderHandlerChainFactoryImpl();
 
-        return new CLILauncherImpl(cliParser, logAnalyzer, printer);
+        return new CLILauncherImpl(cliParser, logAnalyzer, printer, errorFactory);
     }
 }

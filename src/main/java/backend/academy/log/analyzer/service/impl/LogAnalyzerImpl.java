@@ -13,18 +13,15 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.Getter;
-import lombok.Setter;
 
 public class LogAnalyzerImpl implements LogAnalyzer {
     private final LogReaderImpl logReader;
     private List<String> sources = new ArrayList<>();
     private List<LogRecord> logRecords = new ArrayList<>();
 
-    @Setter
     @Getter
     private OffsetDateTime from;
 
-    @Setter
     @Getter
     private OffsetDateTime to;
 
@@ -99,6 +96,16 @@ public class LogAnalyzerImpl implements LogAnalyzer {
     private <K> Map<K, Long> getMapOfAmount(Function<LogRecord, K> keyExtractor) {
         return logRecords.stream()
             .collect(Collectors.groupingBy(keyExtractor, Collectors.counting()));
+    }
+
+    @Override
+    public void setTimeFrom(OffsetDateTime from) {
+        this.from = from;
+    }
+
+    @Override
+    public void setTimeTo(OffsetDateTime to) {
+        this.to = to;
     }
 }
 
