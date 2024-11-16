@@ -17,71 +17,46 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import lombok.Setter;
 
 public class LogAnalyzerImpl implements LogAnalyzer {
     private final LogParserImpl logParser;
+
     @Getter
     private final List<LogRecord> logRecords = new ArrayList<>();
+    private final List<String> sources = new ArrayList<>();
+
+    @Setter
     @Getter
     private OffsetDateTime from;
+
+    @Setter
     @Getter
     private OffsetDateTime to;
+
+    private Pair<String, String> filtration;
+    private static final Double COEFFICIENT = 0.95;
 
     public LogAnalyzerImpl(LogParserImpl logParser) {
         this.logParser = logParser;
     }
 
-    public void setFrom(OffsetDateTime from) {
-        this.from = from;
-    }
-
-    public void setTo(OffsetDateTime to) {
-        this.to = to;
-    }
-
-    private final List<String> sources = new ArrayList<>();
-    private String path;
-    private Pair<String, String> filtration;
-
     @Override
     public Report generateReport(String path, String filtrationMetric, String valueToFilter) throws Exception {
         readLogs(path, filtrationMetric, valueToFilter);
+
         long totalRequests = logRecords.size();
-
-        Map<String, Long> resourceCount = logRecords.stream()
-            .collect(Collectors.groupingBy(LogRecord::resource, Collectors.counting()));
-
-        Map<Integer, Long> statusCount = logRecords.stream()
-            .collect(Collectors.groupingBy(LogRecord::statusCode, Collectors.counting()));
-
-        double averageResponseSize = logRecords.stream()
-            .mapToLong(LogRecord::responseSize)
-            .average()
-            .orElse(0);
-
-        List<Long> sortedResponseSizes = logRecords.stream()
-            .map(LogRecord::responseSize)
-            .sorted()
-            .collect(Collectors.toList());
-
-        long percentile95ResponseSize = sortedResponseSizes.isEmpty() ? 0 :
-            sortedResponseSizes.get((int) (0.95 * sortedResponseSizes.size()));
-
-        Map<String, Long> ipAddresses = logRecords.stream()
-            .collect(Collectors.groupingBy(LogRecord::remoteAddr, Collectors.counting()));
-
-        Map<String, Long> userAgents = logRecords.stream()
-            .collect(Collectors.groupingBy(LogRecord::httpUserAgent, Collectors.counting()));
-
-        var settingsReport = new SettingsReport(
-            from,
-            to,
-            sources,
-            path,
-            filtration
-        );
+        Map<String, Long> resourceCount = getMapOfAmount(LogRecord::resource);
+        Map<Integer, Long> statusCount = getMapOfAmount(LogRecord::statusCode);
+        Map<String, Long> ipAddresses = getMapOfAmount(LogRecord::remoteAddr);
+        Map<String, Long> userAgents = getMapOfAmount(LogRecord::httpUserAgent);
+        double averageResponseSize = getAverageResponseSize();
+        List<Long> sortedResponseSizes = getSortedResponseSizes();
+        long percentile95ResponseSize = getPercentile95ResponseSize(sortedResponseSizes);
+        SettingsReport settingsReport = getSettingsReport(path);
 
         return new Report(
             totalRequests,
@@ -95,21 +70,54 @@ public class LogAnalyzerImpl implements LogAnalyzer {
         );
     }
 
+    private SettingsReport getSettingsReport(String path) {
+        return new SettingsReport(
+            from,
+            to,
+            sources,
+            path,
+            filtration
+        );
+    }
+
+    private long getPercentile95ResponseSize(List<Long> sortedResponseSizes) {
+        return sortedResponseSizes.isEmpty()
+            ? 0 : sortedResponseSizes.get((int) (COEFFICIENT * sortedResponseSizes.size()));
+    }
+
+    private List<Long> getSortedResponseSizes() {
+        return logRecords.stream()
+            .map(LogRecord::responseSize)
+            .sorted()
+            .toList();
+    }
+
+    private double getAverageResponseSize() {
+        return logRecords.stream()
+            .mapToLong(LogRecord::responseSize)
+            .average()
+            .orElse(0);
+    }
+
+    private <K> Map<K, Long> getMapOfAmount(Function<LogRecord, K> keyExtractor) {
+        return logRecords.stream()
+            .collect(Collectors.groupingBy(keyExtractor, Collectors.counting()));
+    }
+
     private void readLogs(String path, String filtrationMetric, String valueToFilter) throws Exception {
-        this.path = path;
         if (!filtrationMetric.isEmpty() && !valueToFilter.isEmpty()) {
             this.filtration = new Pair<>(filtrationMetric, valueToFilter);
         }
 
         if (path.startsWith("http")) {
-            String fileName = extractFileNameFromURL(path); // Извлекаем имя файла из URL
+            String fileName = extractFileNameFromURL(path);
             sources.add(fileName);
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(path).openStream()))) {
                 reader.lines()
                     .map(logParser::parseLine)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
-                    .filter(this::matchesFilter) // Фильтрация
+                    .filter(this::matchesFilter)
                     .forEach(this::addIfInRange);
             }
         } else if (containsGlobSymbols(path)) {
@@ -121,20 +129,20 @@ public class LogAnalyzerImpl implements LogAnalyzer {
                 .filter(Files::isRegularFile)
                 .filter(p -> matcher.matches(p.getFileName()))
                 .forEach(p -> {
-                    sources.add(p.getFileName().toString()); // Добавляем только имя файла
+                    sources.add(p.getFileName().toString());
                     processFile(p);
                 });
         } else {
             Path regularPath = Path.of(path);
 
             if (Files.isRegularFile(regularPath)) {
-                sources.add(regularPath.getFileName().toString()); // Добавляем только имя файла
+                sources.add(regularPath.getFileName().toString());
                 processFile(regularPath);
             } else if (Files.isDirectory(regularPath)) {
                 Files.walk(regularPath)
                     .filter(Files::isRegularFile)
                     .forEach(p -> {
-                        sources.add(p.getFileName().toString()); // Добавляем только имя файла
+                        sources.add(p.getFileName().toString());
                         processFile(p);
                     });
             } else {
@@ -158,7 +166,7 @@ public class LogAnalyzerImpl implements LogAnalyzer {
                 .map(logParser::parseLine)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .filter(this::matchesFilter) // Фильтрация
+                .filter(this::matchesFilter)
                 .forEach(this::addIfInRange);
         } catch (Exception e) {
             e.printStackTrace();
@@ -179,7 +187,7 @@ public class LogAnalyzerImpl implements LogAnalyzer {
 
     private boolean matchesFilter(LogRecord record) {
         if (filtration == null) {
-            return true; // Нет фильтрации, принимаем все записи
+            return true;
         }
 
         String metric = filtration.first();
@@ -197,12 +205,12 @@ public class LogAnalyzerImpl implements LogAnalyzer {
                     int statusCode = Integer.parseInt(value);
                     return record.statusCode() == statusCode;
                 } catch (NumberFormatException e) {
-                    return false; // Некорректное значение для фильтрации по статусу
+                    return false;
                 }
             case "ip":
                 return record.remoteAddr() != null && record.remoteAddr().equals(value);
             default:
-                return true; // Неизвестная метрика — не фильтруем
+                return true;
         }
     }
 

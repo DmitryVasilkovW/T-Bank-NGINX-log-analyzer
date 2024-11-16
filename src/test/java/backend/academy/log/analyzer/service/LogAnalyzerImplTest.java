@@ -35,8 +35,8 @@ class LogAnalyzerImplTest {
 
     @Test
     void generateReportWithValidDataShouldReturnCorrectReport() throws Exception {
-        realAnalyzer.setFrom(LocalDate.parse("2014-08-05").atStartOfDay().atOffset(ZoneOffset.UTC));
-        realAnalyzer.setTo(LocalDate.parse("2017-08-05").atStartOfDay().atOffset(ZoneOffset.UTC));
+        realAnalyzer.from(LocalDate.parse("2014-08-05").atStartOfDay().atOffset(ZoneOffset.UTC));
+        realAnalyzer.to(LocalDate.parse("2017-08-05").atStartOfDay().atOffset(ZoneOffset.UTC));
 
         Report report = realAnalyzer.generateReport("src/test/resources/logs.log", "", "");
 
@@ -79,8 +79,8 @@ class LogAnalyzerImplTest {
         LogRecord log1 = mock(LogRecord.class);
         when(log1.resource()).thenReturn("/contact");
 
-        logAnalyzer.setFrom(OffsetDateTime.now().minusDays(1));
-        logAnalyzer.setTo(OffsetDateTime.now());
+        logAnalyzer.from(OffsetDateTime.now().minusDays(1));
+        logAnalyzer.to(OffsetDateTime.now());
 
         when(logParser.parseLine(anyString())).thenReturn(Optional.of(log1));
 
