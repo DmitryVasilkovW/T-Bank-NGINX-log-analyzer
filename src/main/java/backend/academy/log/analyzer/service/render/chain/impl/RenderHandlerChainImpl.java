@@ -1,11 +1,11 @@
 package backend.academy.log.analyzer.service.render.chain.impl;
 
 import backend.academy.log.analyzer.model.RanderRequest;
-import backend.academy.log.analyzer.service.render.ReportRander;
+import backend.academy.log.analyzer.service.render.ReportRender;
 import backend.academy.log.analyzer.service.render.chain.RanderHandlerChain;
 import java.util.Optional;
 
-public abstract class RanderHandlerChainImpl implements RanderHandlerChain {
+public abstract class RenderHandlerChainImpl implements RanderHandlerChain {
     protected RanderHandlerChain next;
 
     @Override
@@ -19,5 +19,5 @@ public abstract class RanderHandlerChainImpl implements RanderHandlerChain {
         return this;
     }
 
-    public abstract Optional<ReportRander> handle(RanderRequest request);
+    public abstract Optional<ReportRender> handle(RanderRequest request);
 }

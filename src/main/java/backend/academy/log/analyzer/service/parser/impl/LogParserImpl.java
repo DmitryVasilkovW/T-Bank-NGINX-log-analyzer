@@ -11,8 +11,16 @@ import java.util.regex.Pattern;
 
 public class LogParserImpl implements LogParser {
     private static final Pattern LOG_PATTERN = Pattern.compile(
-        "^(?<remoteAddr>\\S+) - (?<remoteUser>\\S+) \\[(?<timeLocal>[^]]+)] \"(?<method>\\S+) (?<resource>\\S+) (?<protocol>[^\"]*)\" " +
-            "(?<status>\\d{3}) (?<bodyBytesSent>\\d+) \"(?<httpReferer>[^\"]*)\" \"(?<httpUserAgent>[^\"]*)\"$"
+        "^(?<remoteAddr>\\S+)"
+            + " - (?<remoteUser>\\S+)"
+            + " \\[(?<timeLocal>[^]]+)]"
+            + " \"(?<method>\\S+)"
+            + " (?<resource>\\S+)"
+            + " (?<protocol>[^\"]*)\" "
+            + "(?<status>\\d{3})"
+            + " (?<bodyBytesSent>\\d+)"
+            + " \"(?<httpReferer>[^\"]*)\""
+            + " \"(?<httpUserAgent>[^\"]*)\"$"
     );
     private static final DateTimeFormatter DATE_FORMAT =
         DateTimeFormatter.ofPattern("dd/MMM/yyyy:HH:mm:ss Z", Locale.ENGLISH);

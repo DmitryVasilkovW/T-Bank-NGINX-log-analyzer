@@ -2,13 +2,13 @@ package backend.academy.log.analyzer.service.render.impl;
 
 import backend.academy.log.analyzer.model.Pair;
 import backend.academy.log.analyzer.model.Report;
-import backend.academy.log.analyzer.service.render.ReportRander;
+import backend.academy.log.analyzer.service.render.ReportRender;
 import backend.academy.log.analyzer.service.render.http.response.decoder.HttpStatusDescription;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
-public class MarkdownReportRanderImpl implements ReportRander {
+public class MarkdownReportRanderImpl implements ReportRender {
     StringBuilder sb;
     List<Pair<Integer, Long>> responseCodes;
     List<Pair<String, Long>> resources;

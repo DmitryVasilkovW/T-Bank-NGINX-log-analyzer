@@ -6,8 +6,8 @@ import backend.academy.log.analyzer.model.Report;
 import backend.academy.log.analyzer.service.cli.parser.CLIParserImpl;
 import backend.academy.log.analyzer.service.impl.LogAnalyzerImpl;
 import backend.academy.log.analyzer.service.parser.impl.LogParserImpl;
-import backend.academy.log.analyzer.service.render.ReportRander;
-import backend.academy.log.analyzer.service.render.chain.factory.impl.RanderHandlerChainFactoryImpl;
+import backend.academy.log.analyzer.service.render.ReportRender;
+import backend.academy.log.analyzer.service.render.chain.factory.impl.RenderHandlerChainFactoryImpl;
 import java.util.Optional;
 
 public class CLILauncher {
@@ -25,8 +25,8 @@ public class CLILauncher {
             Report report = logAnalyzer.generateReport(path, metric, val);
 
             String format = arguments.format();
-            Optional<ReportRander> randerO =
-                new RanderHandlerChainFactoryImpl().create().handle(new RanderRequest(format));
+            Optional<ReportRender> randerO =
+                new RenderHandlerChainFactoryImpl().create().handle(new RanderRequest(format));
             String formattedReport = randerO.get().renderReportAsString(report);
 
             System.out.println(formattedReport);
