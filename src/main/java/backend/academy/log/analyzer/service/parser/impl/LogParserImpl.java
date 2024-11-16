@@ -29,7 +29,8 @@ public class LogParserImpl implements LogParser {
                 Integer.parseInt(matcher.group("status")),
                 Long.parseLong(matcher.group("bodyBytesSent")),
                 matcher.group("httpReferer"),
-                matcher.group("httpUserAgent")
+                matcher.group("httpUserAgent"),
+                matcher.group("method")
             ));
         }
         return Optional.empty();

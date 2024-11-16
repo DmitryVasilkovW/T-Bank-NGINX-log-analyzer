@@ -46,15 +46,19 @@ public class LogAnalyzerImpl implements LogAnalyzer {
     private Pair<String, String> filtration;
 
     @Override
-    public void readLogs(String path) throws Exception {
+    public void readLogs(String path, String filtrationMetric, String valueToFilter) throws Exception {
         this.path = path;
+        this.filtration = new Pair<>(filtrationMetric, valueToFilter);
+
         if (path.startsWith("http")) {
             String fileName = extractFileNameFromURL(path); // Извлекаем имя файла из URL
-            sources.add(fileName); // Добавляем имя файла в список источников
+            sources.add(fileName);
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(path).openStream()))) {
-                reader.lines().map(logParser::parseLine)
+                reader.lines()
+                    .map(logParser::parseLine)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
+                    .filter(this::matchesFilter) // Фильтрация
                     .forEach(this::addIfInRange);
             }
         } else if (containsGlobSymbols(path)) {
@@ -99,9 +103,11 @@ public class LogAnalyzerImpl implements LogAnalyzer {
 
     private void processFile(Path file) {
         try (BufferedReader reader = Files.newBufferedReader(file)) {
-            reader.lines().map(logParser::parseLine)
+            reader.lines()
+                .map(logParser::parseLine)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
+                .filter(this::matchesFilter) // Фильтрация
                 .forEach(this::addIfInRange);
         } catch (Exception e) {
             e.printStackTrace();
@@ -117,6 +123,35 @@ public class LogAnalyzerImpl implements LogAnalyzer {
         if ((from == null || !record.timeLocal().isBefore(from)) &&
             (to == null || !record.timeLocal().isAfter(to))) {
             logRecords.add(record);
+        }
+    }
+
+    private boolean matchesFilter(LogRecord record) {
+        if (filtration == null) {
+            return true; // Нет фильтрации, принимаем все записи
+        }
+
+        String metric = filtration.first();
+        String value = filtration.second();
+
+        switch (metric.toLowerCase()) {
+            case "agent":
+                return record.httpUserAgent() != null && record.httpUserAgent().startsWith(value);
+            case "method":
+                return record.method() != null && record.method().equalsIgnoreCase(value);
+            case "resource":
+                return record.resource() != null && record.resource().contains(value);
+            case "status":
+                try {
+                    int statusCode = Integer.parseInt(value);
+                    return record.statusCode() == statusCode;
+                } catch (NumberFormatException e) {
+                    return false; // Некорректное значение для фильтрации по статусу
+                }
+            case "ip":
+                return record.remoteAddr() != null && record.remoteAddr().equals(value);
+            default:
+                return true; // Неизвестная метрика — не фильтруем
         }
     }
 
@@ -156,7 +191,6 @@ public class LogAnalyzerImpl implements LogAnalyzer {
             path,
             filtration
         );
-
 
         return new Report(
             totalRequests,

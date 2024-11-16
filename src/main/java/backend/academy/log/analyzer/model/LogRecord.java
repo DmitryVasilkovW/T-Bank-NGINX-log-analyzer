@@ -9,6 +9,7 @@ public record LogRecord(
     int statusCode,
     long responseSize,
     String httpReferer,
-    String httpUserAgent
+    String httpUserAgent,
+    String method
 ) {
 }

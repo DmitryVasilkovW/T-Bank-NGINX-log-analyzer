@@ -16,7 +16,9 @@ public class Main {
             LogAnalyzerImpl logAnalyzer = new LogAnalyzerImpl(new LogParserImpl());
 
             String path = "https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/nginx_logs/nginx_logs";
-            logAnalyzer.readLogs(path);
+            String metric = "method";
+            String val = "GET";
+            logAnalyzer.readLogs(path, metric, val);
 
             Report report = logAnalyzer.generateReport();
 
