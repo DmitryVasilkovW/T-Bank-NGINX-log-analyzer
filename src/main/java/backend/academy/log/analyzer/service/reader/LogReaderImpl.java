@@ -34,58 +34,76 @@ public class LogReaderImpl {
     @Getter
     private Pair<String, String> filtration;
 
+    private static final String HTTP_PROTOCOL = "http";
+
     public LogReaderImpl(LogParser logParser) {
         this.logParser = logParser;
     }
 
     public List<LogRecord> readLogs(String path, String filtrationMetric, String valueToFilter) throws Exception {
+        setFiltration(filtrationMetric, valueToFilter);
+
+        if (path.startsWith(HTTP_PROTOCOL)) {
+            readHttp(path);
+        } else if (containsGlobSymbols(path)) {
+            readLocalSourceWithGlob(path);
+        } else {
+            readLocalSource(path);
+        }
+
+        return logRecords;
+    }
+
+    private void setFiltration(String filtrationMetric, String valueToFilter) {
         if (!filtrationMetric.isEmpty() && !valueToFilter.isEmpty()) {
             this.filtration = new Pair<>(filtrationMetric, valueToFilter);
         }
+    }
 
-        if (path.startsWith("http")) {
-            String fileName = extractFileNameFromURL(path);
-            sources.add(fileName);
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(path).openStream()))) {
-                reader.lines()
-                    .map(logParser::parseLine)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .filter(this::matchesFilter)
-                    .forEach(this::addIfInRange);
-            }
-        } else if (containsGlobSymbols(path)) {
-            Path basePath = Path.of(path).getParent();
-            String globPattern = "glob:" + Path.of(path).getFileName();
-            PathMatcher matcher = basePath.getFileSystem().getPathMatcher(globPattern);
+    private void readHttp(String path) throws Exception {
+        String fileName = extractFileNameFromURL(path);
+        sources.add(fileName);
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(path).openStream()))) {
+            reader.lines()
+                .map(logParser::parseLine)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(this::matchesFilter)
+                .forEach(this::addIfInRange);
+        }
+    }
 
-            Files.walk(basePath)
+    private void readLocalSourceWithGlob(String path) throws Exception {
+        Path basePath = Path.of(path).getParent();
+        String globPattern = "glob:" + Path.of(path).getFileName();
+        PathMatcher matcher = basePath.getFileSystem().getPathMatcher(globPattern);
+
+        Files.walk(basePath)
+            .filter(Files::isRegularFile)
+            .filter(p -> matcher.matches(p.getFileName()))
+            .forEach(p -> {
+                sources.add(p.getFileName().toString());
+                processFile(p);
+            });
+    }
+
+    private void readLocalSource(String path) throws Exception {
+        Path regularPath = Path.of(path);
+
+        if (Files.isRegularFile(regularPath)) {
+            sources.add(regularPath.getFileName().toString());
+            processFile(regularPath);
+        } else if (Files.isDirectory(regularPath)) {
+            Files.walk(regularPath)
                 .filter(Files::isRegularFile)
-                .filter(p -> matcher.matches(p.getFileName()))
                 .forEach(p -> {
                     sources.add(p.getFileName().toString());
                     processFile(p);
                 });
         } else {
-            Path regularPath = Path.of(path);
-
-            if (Files.isRegularFile(regularPath)) {
-                sources.add(regularPath.getFileName().toString());
-                processFile(regularPath);
-            } else if (Files.isDirectory(regularPath)) {
-                Files.walk(regularPath)
-                    .filter(Files::isRegularFile)
-                    .forEach(p -> {
-                        sources.add(p.getFileName().toString());
-                        processFile(p);
-                    });
-            } else {
-                throw new IllegalArgumentException(
-                    "Path is neither a valid file, directory, nor a glob pattern: " + path);
-            }
+            throw new IllegalArgumentException(
+                "Path is neither a valid file, directory, nor a glob pattern: " + path);
         }
-
-        return logRecords;
     }
 
     private String extractFileNameFromURL(String url) {
