@@ -1,5 +1,5 @@
 package backend.academy.samples.lombok;
-
+// CHECKSTYLE:OFF
 import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Builder;

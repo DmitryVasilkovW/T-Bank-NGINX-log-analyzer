@@ -1,5 +1,5 @@
 package backend.academy.samples.comparator;
-
+// CHECKSTYLE:OFF
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;

@@ -1,5 +1,5 @@
 package backend.academy.samples.java21;
-
+// CHECKSTYLE:OFF
 /**
  * <a href="https://docs.oracle.com/en/java/javase/22/language/pattern-matching.html">Feature documentation</a>
  * <a href="https://docs.oracle.com/en/java/javase/22/language/switch-expressions.html">More on switch expressions</a>

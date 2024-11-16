@@ -1,5 +1,5 @@
 package backend.academy.samples.collections;
-
+// CHECKSTYLE:OFF
 import java.util.SortedMap;
 import java.util.TreeMap;
 

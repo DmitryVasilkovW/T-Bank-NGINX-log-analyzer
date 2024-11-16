@@ -1,5 +1,5 @@
 package backend.academy.samples.guice;
-
+// CHECKSTYLE:OFF
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;

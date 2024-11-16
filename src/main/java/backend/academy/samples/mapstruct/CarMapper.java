@@ -1,5 +1,5 @@
 package backend.academy.samples.mapstruct;
-
+// CHECKSTYLE:OFF
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;

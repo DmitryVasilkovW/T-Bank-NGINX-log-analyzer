@@ -1,5 +1,5 @@
 package backend.academy.samples.comparator;
-
+// CHECKSTYLE:OFF
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

@@ -1,5 +1,5 @@
 package backend.academy.samples.caffeine;
-
+// CHECKSTYLE:OFF
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.CacheLoader;
 import com.github.benmanes.caffeine.cache.Caffeine;

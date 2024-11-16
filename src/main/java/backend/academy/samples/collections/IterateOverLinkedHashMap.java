@@ -1,5 +1,5 @@
 package backend.academy.samples.collections;
-
+// CHECKSTYLE:OFF
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;

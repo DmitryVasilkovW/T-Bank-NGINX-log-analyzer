@@ -1,5 +1,5 @@
 package backend.academy.samples.jcommander;
-
+// CHECKSTYLE:OFF
 import com.beust.jcommander.JCommander;
 import lombok.extern.log4j.Log4j2;
 

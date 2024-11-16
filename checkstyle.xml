@@ -400,7 +400,6 @@
             <property name="message" value="Use org.jspecify.* for nullability."/>
         </module>
 
-
         <!-- https://checkstyle.org/config_filters.html -->
         <!-- Comments/annotation suppression.           -->
         <module name="SuppressionCommentFilter"/>
