@@ -13,7 +13,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class LogAnalyzerImpl implements LogAnalyzer {
     private final LogReaderImpl logReader;
     private List<String> sources = new ArrayList<>();
@@ -27,10 +29,6 @@ public class LogAnalyzerImpl implements LogAnalyzer {
 
     private Pair<String, String> filtration;
     private static final Double COEFFICIENT = 0.95;
-
-    public LogAnalyzerImpl(LogReaderImpl logReader) {
-        this.logReader = logReader;
-    }
 
     @Override
     public Report generateReport(String path, String filtrationMetric, String valueToFilter) throws Exception {
