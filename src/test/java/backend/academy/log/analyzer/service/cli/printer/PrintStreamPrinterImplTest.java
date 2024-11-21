@@ -1,18 +1,21 @@
 package backend.academy.log.analyzer.service.cli.printer;
 
 import backend.academy.log.analyzer.service.cli.printer.impl.PrintStreamPrinterImpl;
-import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import org.junit.jupiter.api.Test;
-import org.mockito.Spy;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 class PrintStreamPrinterImplTest {
-    private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    @Spy
-    private PrintStream printStream = new PrintStream(outputStream);
-    @Spy
-    private PrintStreamPrinterImpl printer = new PrintStreamPrinterImpl(printStream);
+    @Mock
+    private PrintStream mockPrintStream;
+
+    @InjectMocks
+    private PrintStreamPrinterImpl printer;
 
     @Test
     void testPrintlnShouldPrintMessageToStream() {
@@ -20,13 +23,13 @@ class PrintStreamPrinterImplTest {
 
         printer.println(message);
 
-        assertThat(outputStream.toString()).isEqualTo(message + System.lineSeparator());
+        verify(mockPrintStream).println(message);
     }
 
     @Test
     void testPrintlnShouldHandleNullMessage() {
         printer.println(null);
 
-        assertThat(outputStream.toString()).isEqualTo("null" + System.lineSeparator());
+        verify(mockPrintStream).println(((String) null));
     }
 }

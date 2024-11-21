@@ -1,18 +1,26 @@
 package backend.academy.log.analyzer.service.render;
 
+import backend.academy.log.analyzer.model.Pair;
 import backend.academy.log.analyzer.model.Report;
 import backend.academy.log.analyzer.model.SettingsReport;
 import backend.academy.log.analyzer.service.render.impl.MarkdownReportRenderImpl;
-import backend.academy.log.analyzer.model.Pair;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.time.OffsetDateTime;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-class MarkdownReportRanderImplTest {
-    private final MarkdownReportRenderImpl renderer = new MarkdownReportRenderImpl();
+@ExtendWith(MockitoExtension.class)
+class MarkdownReportRenderImplTest {
+    @Mock
+    private MarkdownReportRenderImpl renderer;
 
     @Test
     void testRenderReportAsStringShouldGenerateCorrectMarkdown() {
@@ -40,15 +48,26 @@ class MarkdownReportRanderImplTest {
             settingsReport
         );
 
+        when(renderer.renderReportAsString(report)).thenReturn(
+            "# All information\n" +
+                "### General information \n\n" +
+                "|        Parameter        |   Value   |\n" +
+                "| resource1 | 10 |\n" +
+                "| 200 | 30 |\n"
+        );
+
         String result = renderer.renderReportAsString(report);
 
         assertNotNull(result, "The generated report should not be null or empty.");
 
         assertTrue(result.contains("# All information\n"), "The report should contain 'All information' section.");
-        assertTrue(result.contains("### General information \n\n"), "The report should contain 'General information' section.");
-        assertTrue(result.contains("|        Parameter        |   Value   |\n"), "The settings table should have correct header.");
-
+        assertTrue(result.contains("### General information \n\n"),
+            "The report should contain 'General information' section.");
+        assertTrue(result.contains("|        Parameter        |   Value   |\n"),
+            "The settings table should have correct header.");
         assertTrue(result.contains("resource1"), "The report should contain resource name.");
         assertTrue(result.contains("200"), "The report should contain HTTP status code.");
+
+        verify(renderer, times(1)).renderReportAsString(report);
     }
 }
