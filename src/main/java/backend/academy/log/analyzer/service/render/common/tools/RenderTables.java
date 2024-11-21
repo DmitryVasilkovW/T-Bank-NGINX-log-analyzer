@@ -18,7 +18,7 @@ import static backend.academy.log.analyzer.service.render.common.constant.Common
 import static backend.academy.log.analyzer.service.render.common.constant.CommonConstant.START_TIME_NO;
 import static backend.academy.log.analyzer.service.render.common.constant.CommonConstant.UNKNOWN_CODE;
 import static backend.academy.log.analyzer.service.render.common.tools.MapSorter.getSortedPairs;
-import static backend.academy.log.analyzer.service.render.common.tools.StringMapper.getDataAsString;
+import static backend.academy.log.analyzer.service.render.common.tools.StringMapper.getDataOrNoDataMessageAsString;
 import static backend.academy.log.analyzer.service.render.common.tools.StringMapper.getFiltrationAsString;
 import static backend.academy.log.analyzer.service.render.common.tools.StringMapper.getSourcesAsString;
 
@@ -38,8 +38,8 @@ public final class RenderTables {
 
         String path = report.settingsReport().path();
         String sources = getSourcesAsString(report.settingsReport().sources());
-        String dataFrom = getDataAsString(report.settingsReport().dateFrom(), START_TIME_NO);
-        String dataTo = getDataAsString(report.settingsReport().dateTo(), END_TIME_NO);
+        String dataFrom = getDataOrNoDataMessageAsString(report.settingsReport().dateFrom(), START_TIME_NO);
+        String dataTo = getDataOrNoDataMessageAsString(report.settingsReport().dateTo(), END_TIME_NO);
         String filtration = getFiltrationAsString(report.settingsReport().filtration());
 
         sb.append(String.format(format, PATH_NAME, path));

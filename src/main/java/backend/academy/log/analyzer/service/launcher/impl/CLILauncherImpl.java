@@ -9,7 +9,7 @@ import backend.academy.log.analyzer.service.cli.parser.CLIParser;
 import backend.academy.log.analyzer.service.cli.printer.Printer;
 import backend.academy.log.analyzer.service.launcher.CLILauncher;
 import backend.academy.log.analyzer.service.render.ReportRender;
-import backend.academy.log.analyzer.service.render.chain.factory.impl.RenderHandlerChainFactoryImpl;
+import backend.academy.log.analyzer.service.render.chain.factory.RenderHandlerChainFactory;
 import backend.academy.log.analyzer.service.render.error.ErrorRender;
 import backend.academy.log.analyzer.service.render.error.chain.factory.ErrorRenderHandlerChainFactory;
 import java.time.LocalDate;
@@ -23,16 +23,19 @@ public class CLILauncherImpl implements CLILauncher {
     private final LogAnalyzer logAnalyzer;
     private final Printer printer;
     private final ErrorRenderHandlerChainFactory errorRenderHandlerChainFactory;
+    private final RenderHandlerChainFactory renderHandlerChainFactory;
     private static final String RENDER_ERROR_MESSAGE = "Rendering failed: invalid format";
 
     public CLILauncherImpl(
         CLIParser parser, LogAnalyzer logAnalyzer, Printer printer,
-        ErrorRenderHandlerChainFactory errorRenderHandlerChainFactory
+        ErrorRenderHandlerChainFactory errorRenderHandlerChainFactory,
+        RenderHandlerChainFactory renderHandlerChainFactory
     ) {
         this.parser = parser;
         this.logAnalyzer = logAnalyzer;
         this.printer = printer;
         this.errorRenderHandlerChainFactory = errorRenderHandlerChainFactory;
+        this.renderHandlerChainFactory = renderHandlerChainFactory;
     }
 
     @Override
@@ -62,7 +65,7 @@ public class CLILauncherImpl implements CLILauncher {
         Report report = logAnalyzer.generateReport(path, metric, val);
 
         Optional<ReportRender> randerO =
-            new RenderHandlerChainFactoryImpl().create().handle(new RanderRequest(format));
+            renderHandlerChainFactory.create().handle(new RanderRequest(format));
         String formattedReport = randerO
             .orElseThrow(() -> new RuntimeException(RENDER_ERROR_MESSAGE)).renderReportAsString(report);
 

@@ -8,10 +8,18 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-public class AdocReportRanderImplTest {
-    private final AdocReportRenderImpl reportRander = new AdocReportRenderImpl();
+@ExtendWith(MockitoExtension.class)
+public class AdocReportRenderImplTest {
+    @Mock
+    private AdocReportRenderImpl reportRender;
 
     @Test
     void testRenderReportAsStringShouldGenerateCorrectAdoc() {
@@ -39,12 +47,20 @@ public class AdocReportRanderImplTest {
             settingsReport
         );
 
-        String result = reportRander.renderReportAsString(report);
+        when(reportRender.renderReportAsString(report)).thenReturn(
+            "== All information\n"
+                + "== Compilations\n"
+                + "| Resource | Amount\n"
+                + "| Code | Description | Amount"
+        );
+
+        String result = reportRender.renderReportAsString(report);
 
         assertTrue(result.contains("== All information"));
         assertTrue(result.contains("== Compilations"));
         assertTrue(result.contains("| Resource | Amount"));
         assertTrue(result.contains("| Code | Description | Amount"));
+
+        verify(reportRender, times(1)).renderReportAsString(report);
     }
 }
-

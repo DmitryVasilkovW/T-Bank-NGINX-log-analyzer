@@ -23,11 +23,11 @@ public class StringMapperTest {
     @Test
     void testGetDataAsString() {
         OffsetDateTime date = OffsetDateTime.now();
-        String result = StringMapper.getDataAsString(date, "Some message");
+        String result = StringMapper.getDataOrNoDataMessageAsString(date, "Some message");
         String expected = date.toString();
         assertEquals(expected, result, "The date string should be converted correctly.");
 
-        result = StringMapper.getDataAsString(null, "Some message");
+        result = StringMapper.getDataOrNoDataMessageAsString(null, "Some message");
         expected = "Some message";
         assertEquals(expected, result, "The result should be the message when the date is null.");
     }
