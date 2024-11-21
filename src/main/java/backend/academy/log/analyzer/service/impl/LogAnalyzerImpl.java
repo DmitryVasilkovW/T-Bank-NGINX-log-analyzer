@@ -108,5 +108,3 @@ public class LogAnalyzerImpl implements LogAnalyzer {
         this.to = to;
     }
 }
-
-

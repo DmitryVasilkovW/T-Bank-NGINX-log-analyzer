@@ -18,9 +18,9 @@ public final class StringMapper {
         return String.format(FORMAT_FOR_FILTRATION, filtration.first(), filtration.second());
     }
 
-    public static String getDataAsString(OffsetDateTime date, String message) {
+    public static String getDataOrNoDataMessageAsString(OffsetDateTime date, String noDataMessage) {
         if (date == null) {
-            return message;
+            return noDataMessage;
         }
 
         return date.toString();
