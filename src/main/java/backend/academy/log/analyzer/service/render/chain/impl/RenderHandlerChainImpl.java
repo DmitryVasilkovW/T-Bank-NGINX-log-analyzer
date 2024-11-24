@@ -1,6 +1,6 @@
 package backend.academy.log.analyzer.service.render.chain.impl;
 
-import backend.academy.log.analyzer.model.RanderRequest;
+import backend.academy.log.analyzer.model.RenderRequest;
 import backend.academy.log.analyzer.service.render.ReportRender;
 import backend.academy.log.analyzer.service.render.chain.RenderHandlerChain;
 import java.util.Optional;
@@ -19,5 +19,5 @@ public abstract class RenderHandlerChainImpl implements RenderHandlerChain {
         return this;
     }
 
-    public abstract Optional<ReportRender> handle(RanderRequest request);
+    public abstract Optional<ReportRender> handle(RenderRequest request);
 }

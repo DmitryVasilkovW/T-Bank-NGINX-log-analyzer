@@ -2,7 +2,7 @@ package backend.academy.log.analyzer.service.launcher.impl;
 
 import backend.academy.log.analyzer.model.CLIArguments;
 import backend.academy.log.analyzer.model.ErrorRequest;
-import backend.academy.log.analyzer.model.RanderRequest;
+import backend.academy.log.analyzer.model.RenderRequest;
 import backend.academy.log.analyzer.model.Report;
 import backend.academy.log.analyzer.service.LogAnalyzer;
 import backend.academy.log.analyzer.service.cli.parser.CLIParser;
@@ -65,7 +65,7 @@ public class CLILauncherImpl implements CLILauncher {
         Report report = logAnalyzer.generateReport(path, metric, val);
 
         Optional<ReportRender> randerO =
-            renderHandlerChainFactory.create().handle(new RanderRequest(format));
+            renderHandlerChainFactory.create().handle(new RenderRequest(format));
         String formattedReport = randerO
             .orElseThrow(() -> new RuntimeException(RENDER_ERROR_MESSAGE)).renderReportAsString(report);
 
