@@ -8,10 +8,17 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ExtendWith(MockitoExtension.class)
 class RenderTablesTest {
+
+    @Mock
+    private Report report;
 
     @Test
     void renderSettingsTableTest() {
@@ -28,16 +35,7 @@ class RenderTablesTest {
             filtration
         );
 
-        Report report = new Report(
-            0,
-            Map.of(),
-            Map.of(),
-            0.0,
-            0,
-            Map.of(),
-            Map.of(),
-            settingsReport
-        );
+        Mockito.when(report.settingsReport()).thenReturn(settingsReport);
 
         StringBuilder sb = new StringBuilder();
         String title = "Settings Report\n";
@@ -57,7 +55,6 @@ class RenderTablesTest {
 
     @Test
     void renderGeneralInfoTableTest() {
-        Report report = Mockito.mock(Report.class);
         Mockito.when(report.totalRequests()).thenReturn(100L);
         Mockito.when(report.averageResponseSize()).thenReturn(512.0);
         Mockito.when(report.percentile95ResponseSize()).thenReturn(1024L);
@@ -83,7 +80,6 @@ class RenderTablesTest {
             "resource2", 30L
         );
 
-        Report report = Mockito.mock(Report.class);
         Mockito.when(report.resourceCount()).thenReturn(resourceCount);
 
         StringBuilder sb = new StringBuilder();
@@ -106,26 +102,23 @@ class RenderTablesTest {
             404, 20L
         );
 
-        Report report = Mockito.mock(Report.class);
         Mockito.when(report.statusCount()).thenReturn(statusCount);
 
-        Mockito.mockStatic(HttpStatusDescription.class);
-        Mockito.when(HttpStatusDescription.getStatusDescription(200)).thenReturn("OK");
-        Mockito.when(HttpStatusDescription.getStatusDescription(404)).thenReturn("Not Found");
+        try (var mockedStatic = Mockito.mockStatic(HttpStatusDescription.class)) {
+            mockedStatic.when(() -> HttpStatusDescription.getStatusDescription(200)).thenReturn("OK");
+            mockedStatic.when(() -> HttpStatusDescription.getStatusDescription(404)).thenReturn("Not Found");
 
-        StringBuilder sb = new StringBuilder();
-        String title = "Request Codes\n";
-        String header = "--------------------\n";
-        String separator = "\n";
-        String format = "%d: %s (%d times)\n";
+            StringBuilder sb = new StringBuilder();
+            String title = "Request Codes\n";
+            String header = "--------------------\n";
+            String separator = "\n";
+            String format = "%d: %s (%d times)\n";
 
-        RenderTables.renderRequestsCodeTable(sb, report, title, header, separator, format);
+            RenderTables.renderRequestsCodeTable(sb, report, title, header, separator, format);
 
-        String result = sb.toString();
-        assertTrue(result.contains("200: OK (120 times)"));
-        assertTrue(result.contains("404: Not Found (20 times)"));
-
-        Mockito.clearAllCaches();
+            String result = sb.toString();
+            assertTrue(result.contains("200: OK (120 times)"));
+            assertTrue(result.contains("404: Not Found (20 times)"));
+        }
     }
-
 }
