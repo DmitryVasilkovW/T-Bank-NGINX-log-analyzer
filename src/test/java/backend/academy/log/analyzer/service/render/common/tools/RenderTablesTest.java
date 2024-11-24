@@ -12,13 +12,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 class RenderTablesTest {
 
     @Mock
     private Report report;
+
+    @Mock
+    private SettingsReport settingsReport;
+
+    @Mock
+    private StringBuilder sb;
 
     @Test
     void renderSettingsTableTest() {
@@ -27,17 +32,13 @@ class RenderTablesTest {
         List<String> sources = List.of("source1", "source2");
         Pair<String, String> filtration = new Pair<>("filterKey", "filterValue");
 
-        SettingsReport settingsReport = new SettingsReport(
-            dateFrom,
-            dateTo,
-            sources,
-            "/api/test",
-            filtration
-        );
-
+        Mockito.when(settingsReport.dateFrom()).thenReturn(dateFrom);
+        Mockito.when(settingsReport.dateTo()).thenReturn(dateTo);
+        Mockito.when(settingsReport.sources()).thenReturn(sources);
+        Mockito.when(settingsReport.path()).thenReturn("/api/test");
+        Mockito.when(settingsReport.filtration()).thenReturn(filtration);
         Mockito.when(report.settingsReport()).thenReturn(settingsReport);
 
-        StringBuilder sb = new StringBuilder();
         String title = "Settings Report\n";
         String header = "--------------------\n";
         String separator = "\n";
@@ -45,12 +46,11 @@ class RenderTablesTest {
 
         RenderTables.renderSettingsTable(sb, report, title, header, separator, format);
 
-        String result = sb.toString();
-        assertTrue(result.contains("Path: /api/test"));
-        assertTrue(result.contains("Sources: source1, source2"));
-        assertTrue(result.contains("Start time: 2024-01-01T00:00Z\n"));
-        assertTrue(result.contains("End time: 2024-01-31T23:59:59Z"));
-        assertTrue(result.contains("Filtration: In filterKey parameter to show only filterValue"));
+        Mockito.verify(sb).append(Mockito.contains("Path: /api/test"));
+        Mockito.verify(sb).append(Mockito.contains("Sources: source1, source2"));
+        Mockito.verify(sb).append(Mockito.contains("Start time: 2024-01-01T00:00Z\n"));
+        Mockito.verify(sb).append(Mockito.contains("End time: 2024-01-31T23:59:59Z"));
+        Mockito.verify(sb).append(Mockito.contains("Filtration: In filterKey parameter to show only filterValue"));
     }
 
     @Test
@@ -59,7 +59,6 @@ class RenderTablesTest {
         Mockito.when(report.averageResponseSize()).thenReturn(512.0);
         Mockito.when(report.percentile95ResponseSize()).thenReturn(1024L);
 
-        StringBuilder sb = new StringBuilder();
         String title = "General Info\n";
         String header = "--------------------\n";
         String separator = "\n";
@@ -67,10 +66,9 @@ class RenderTablesTest {
 
         RenderTables.renderGeneralInfoTable(sb, report, title, header, separator, format);
 
-        String result = sb.toString();
-        assertTrue(result.contains("Number of requests: 100\n"));
-        assertTrue(result.contains("Average response size: 512.0b\n"));
-        assertTrue(result.contains("95p response size: 1024b"));
+        Mockito.verify(sb).append(Mockito.contains("Number of requests: 100\n"));
+        Mockito.verify(sb).append(Mockito.contains("Average response size: 512.0b\n"));
+        Mockito.verify(sb).append(Mockito.contains("95p response size: 1024b"));
     }
 
     @Test
@@ -82,7 +80,6 @@ class RenderTablesTest {
 
         Mockito.when(report.resourceCount()).thenReturn(resourceCount);
 
-        StringBuilder sb = new StringBuilder();
         String title = "Resources\n";
         String header = "--------------------\n";
         String separator = "\n";
@@ -90,9 +87,8 @@ class RenderTablesTest {
 
         RenderTables.renderResourcesTable(sb, report, title, header, separator, format);
 
-        String result = sb.toString();
-        assertTrue(result.contains("resource1: 50"));
-        assertTrue(result.contains("resource2: 30"));
+        Mockito.verify(sb).append(Mockito.contains("resource1: 50"));
+        Mockito.verify(sb).append(Mockito.contains("resource2: 30"));
     }
 
     @Test
@@ -108,7 +104,6 @@ class RenderTablesTest {
             mockedStatic.when(() -> HttpStatusDescription.getStatusDescription(200)).thenReturn("OK");
             mockedStatic.when(() -> HttpStatusDescription.getStatusDescription(404)).thenReturn("Not Found");
 
-            StringBuilder sb = new StringBuilder();
             String title = "Request Codes\n";
             String header = "--------------------\n";
             String separator = "\n";
@@ -116,9 +111,8 @@ class RenderTablesTest {
 
             RenderTables.renderRequestsCodeTable(sb, report, title, header, separator, format);
 
-            String result = sb.toString();
-            assertTrue(result.contains("200: OK (120 times)"));
-            assertTrue(result.contains("404: Not Found (20 times)"));
+            Mockito.verify(sb).append(Mockito.contains("200: OK (120 times)"));
+            Mockito.verify(sb).append(Mockito.contains("404: Not Found (20 times)"));
         }
     }
 }
