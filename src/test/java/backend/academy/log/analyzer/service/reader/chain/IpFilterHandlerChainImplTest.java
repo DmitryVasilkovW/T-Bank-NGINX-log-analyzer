@@ -29,7 +29,7 @@ class IpFilterHandlerChainImplTest {
     private IpFilterHandlerChainImpl handler;
 
     @Test
-    void shouldReturnTrueWhenIpMatches() {
+    void shouldReturnTrueWhenIpMatch() {
         when(mockRequest.filtration()).thenReturn(Optional.of(new Pair<>("ip", "173.203.139.108")));
         when(mockRequest.logRecord()).thenReturn(logRecord);
         when(logRecord.remoteAddr()).thenReturn("173.203.139.108");

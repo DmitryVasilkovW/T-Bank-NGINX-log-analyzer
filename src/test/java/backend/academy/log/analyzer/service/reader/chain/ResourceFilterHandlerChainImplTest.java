@@ -29,7 +29,7 @@ class ResourceFilterHandlerChainImplTest {
     private ResourceFilterHandlerChainImpl handler;
 
     @Test
-    void shouldReturnTrueWhenResourceMatches() {
+    void shouldReturnTrueWhenResourceMatch() {
         when(mockRequest.filtration()).thenReturn(Optional.of(new Pair<>("resource", "ast.ll")));
         when(mockRequest.logRecord()).thenReturn(logRecord);
         when(logRecord.resource()).thenReturn("ast.ll");

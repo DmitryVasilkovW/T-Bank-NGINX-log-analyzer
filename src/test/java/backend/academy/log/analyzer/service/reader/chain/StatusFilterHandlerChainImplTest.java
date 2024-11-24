@@ -30,7 +30,7 @@ class StatusFilterHandlerChainImplTest {
     private StatusFilterHandlerChainImpl handler;
 
     @Test
-    void shouldReturnTrueWhenStatusMatches() {
+    void shouldReturnTrueWhenStatusMatch() {
         when(mockRequest.filtration()).thenReturn(Optional.of(new Pair<>("status", "200")));
         when(mockRequest.logRecord()).thenReturn(logRecord);
         when(mockRequest.logRecord().statusCode()).thenReturn(200);

@@ -29,7 +29,7 @@ class MethodFilterHandlerChainImplTest {
     private MethodFilterHandlerChainImpl handler;
 
     @Test
-    void shouldReturnTrueWhenMethodMatchesWithDifferentCases() {
+    void shouldReturnTrueWhenMethodMatchWithDifferentCases() {
         when(mockRequest.filtration()).thenReturn(Optional.of(new Pair<>("method", "GET")));
         when(mockRequest.logRecord()).thenReturn(logRecord);
         when(logRecord.method()).thenReturn("get");
@@ -42,7 +42,7 @@ class MethodFilterHandlerChainImplTest {
     }
 
     @Test
-    void shouldReturnTrueWhenMethodMatchesWithSameCases() {
+    void shouldReturnTrueWhenMethodMatchWithSameCases() {
         when(mockRequest.filtration()).thenReturn(Optional.of(new Pair<>("method", "GET")));
         when(mockRequest.logRecord()).thenReturn(logRecord);
         when(logRecord.method()).thenReturn("GET");

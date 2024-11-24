@@ -29,7 +29,7 @@ class AgentFilterHandlerChainImplTest {
     private AgentFilterHandlerChainImpl handler;
 
     @Test
-    void shouldReturnTrueWhenAgentMatches() {
+    void shouldReturnTrueWhenAgentMatch() {
         when(mockRequest.filtration()).thenReturn(Optional.of(new Pair<>("agent", "sample")));
         when(mockRequest.logRecord()).thenReturn(logRecord);
         when(logRecord.httpUserAgent()).thenReturn("sample");
