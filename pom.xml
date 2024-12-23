@@ -13,7 +13,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
 
-        <revision>1.0.0</revision>
+        <artifactId>nginx-log-analyzer</artifactId>
+        <version>1.0.0</version>
 
         <!-- Language -->
         <maven.version>3.8.8</maven.version>
@@ -434,6 +435,7 @@
     </dependencyManagement>
 
     <build>
+        <finalName>${artifactId}-${version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
